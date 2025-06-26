@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  frontend-server:
+    build: .
+    command: "node server/index.js"
+    ports:
+#      port could be changed in server/index.js
+      - '8081:5000'
+    networks:
+      - buyoutsapp_my-network
+    volumes:
+      - .:/frontend
+
+networks:
+  buyoutsapp_my-network:
+    external: true

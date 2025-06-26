@@ -1,0 +1,106 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.item-row:hover {
+  background-color: lightlightgrey;
+}
+
+.App {
+  text-align: center;
+}
+
+.present-only-for-small-screen {
+  display: none !important;
+}
+
+.force-display-unset {
+  display: unset !important;
+}
+
+@media only screen and (max-width: 700px) {
+  .absent-for-small-screen {
+    display: none !important;
+  }
+  .force-display-unset {
+    display: unset !important;
+  }
+  .present-only-for-small-screen {
+    display: unset !important;
+  }
+}
+.black-text-button.MuiButton-root {
+  color: black;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  height: 35px;
+  text-transform: none;
+}
+
+.button-style.MuiButton-root {
+  background-color: white;
+  border: 2px solid lightgrey;
+  color: black;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  height: 35px;
+  text-transform: none;
+}
+
+.accent-button-style.MuiButton-root {
+  background-color: lightgrey;
+  color: black;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  height: 35px;
+  text-transform: none;
+}
+
+.left-switch-button.MuiToggleButton-root {
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+  background-color: white;
+  border: 2px solid lightgrey;
+  color: black;
+  font-size: 0.8rem;
+  font-weight: bold;
+  height: 35px;
+  text-transform: none;
+}
+
+.right-switch-button.MuiToggleButton-root {
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+  background-color: white;
+  border: 2px solid lightgrey;
+  color: black;
+  font-size: 0.8rem;
+  font-weight: bold;
+  height: 35px;
+  text-transform: none;
+}
+
+.selected-switch-button.MuiToggleButton-root {
+  background-color: lightgrey !important;
+  color: black;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  height: 35px;
+  text-transform: none;
+}
+
+/*# sourceMappingURL=main.css.map*/
