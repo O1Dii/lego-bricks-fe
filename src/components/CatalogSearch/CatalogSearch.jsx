@@ -34,7 +34,7 @@ export default function CatalogSearch({value, setValue, onSearchClick}) {
         color="secondary"
         value={value}
         onChange={(e) => {setValue(e.target.value)}}
-        label="Поиск по артикулу"
+        label="Поиск"
         variant="outlined"
       />
       <Button type="submit" className={"button-style"}>Поиск</Button>

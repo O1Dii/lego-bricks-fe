@@ -12,16 +12,52 @@ import Select, {SelectChangeEvent} from '@mui/material/Select';
 import Pagination from '../Pagination/Pagination';
 import {useContext, useEffect, useState} from "react";
 import Paper from "@mui/material/Paper";
-import Checkbox from '@mui/material/Checkbox';
 import {CartContext} from "../../context/CartContext";
+import {ItemsContext} from "../../context/ItemsContext";
+import TextField from "@mui/material/TextField";
+import {SettingsContext} from "../../context/SettingsContext";
 
-export default function CatalogTable({items}) {
-  const [productsOnPage, setProductsOnPage] = useState(10);
+export default function CatalogTable({items, notFoundItems}) {
+  const {perPage, setPerPage, pages} = useContext(ItemsContext);
   // end pagination
 
   const {addItem, removeItem, isItemInCart, reloader} = useContext(CartContext);
+  const {rub, byn} = useContext(SettingsContext);
 
   const [data, setData] = useState([]);
+  const [counters, setCounters] = useState({});
+
+  useEffect(() => {
+    // Инициализация значений счётчиков при загрузке items
+    const initialCounters = {};
+    items.forEach((product) => {
+      initialCounters[product.id] = 0;
+    });
+    setCounters(initialCounters);
+  }, [items]);
+
+  const handleCounterChange = (id, max) => (event) => {
+    console.log(id, event.target.value);
+    if (event.target.value.startsWith('-')) {
+      return;
+    }
+    const value = parseInt(event.target.value, 10);
+    if (value <= max || !value) {
+      setCounters((prev) => ({
+        ...prev,
+        [id]: isNaN(value) ? 0 : value,
+      }));
+    }
+  };
+
+  console.log(counters);
+
+  // Передача количества в addItem
+  const handleAddToCart = (product) => {
+    const quantity = counters[product.id] || 0;
+    product.quantityInCart = quantity;
+    addItem(product);
+  }
 
   useEffect(() => {
     const currentData = items.map((product, index) => {
@@ -39,10 +75,10 @@ export default function CatalogTable({items}) {
             {/*  <Checkbox />*/}
             {/*</Grid>*/}
             <Grid sx={{display: "flex", alignItems: "center", justifyContent: {xs: "center"}}} xs={6} md={2}>
-              <Box component="img" sx={{height: 90, objectFit: "cover", borderRadius: "10px"}} src={product.imageUrl} alt={""} />
+              <Box component="img" sx={{height: 90, objectFit: "cover", borderRadius: "10px"}} src={product.url} alt={""} />
             </Grid>
             <Grid xs={6} md={2}>
-              {product.condition}
+              {product.item_no}
             </Grid>
             <Grid xs={6} md={2}>
               {product.color}
@@ -56,11 +92,36 @@ export default function CatalogTable({items}) {
                   Наличие: {product.quantity}
                 </Typography>
                 <Typography>
-                  Цена: {product.price} {product.currency}
+                  Цена: {product.price} $ ({
+                    Math.round((parseFloat(product.price) * rub + Number.EPSILON) * 100) / 100
+                  } RUB, {
+                    Math.round((parseFloat(product.price) * byn + Number.EPSILON) * 100) / 100
+                  } BYN)
                 </Typography>
                 {isItemInCart(product.id)
                   ? <Button className={"accent-button-style"} onClick={() => removeItem(product.id)}>Убрать из корзины</Button>
-                  : <Button className={"accent-button-style"} onClick={() => addItem(product)}>Добавить в корзину</Button>
+                  :
+                  <>
+                    <TextField
+                      type="number"
+                      InputProps={{
+                        inputProps: {
+                          max: product.quantity,
+                          min: 0,
+                        },
+                      }}
+                      value={counters[product.id] || ''}
+                      onChange={handleCounterChange(product.id, product.quantity)}
+                      label="Количество"
+                    />
+                    <Button
+                      className="accent-button-style"
+                      onClick={() => handleAddToCart(product)}
+                      disabled={!(counters[product.id] > 0)}
+                    >
+                      Добавить в корзину
+                    </Button>
+                  </>
                 }
               </Stack>
             </Grid>
@@ -80,7 +141,7 @@ export default function CatalogTable({items}) {
         </Box>
       )
     }
-  }, [items, reloader]);
+  }, [items, reloader, counters]);
 
   return (
     <div className="buyouts-table">
@@ -97,7 +158,7 @@ export default function CatalogTable({items}) {
             </Grid>
             <Grid xs={2}>
               <strong>
-                Состояние
+                Номер детали
               </strong>
             </Grid>
             <Grid xs={2}>
@@ -119,8 +180,18 @@ export default function CatalogTable({items}) {
         }
         {data}
       </Box>
-      {items &&
-      <Pagination urlBase="catalog" itemsLen={items.length} productsOnPage={productsOnPage} setProductsOnPage={setProductsOnPage}/>
+      {items && !notFoundItems &&
+      <Pagination urlBase="catalog" itemsLen={items.length} amountOfPages={pages} productsOnPage={perPage} setProductsOnPage={setPerPage}/>
+      }
+      {notFoundItems && notFoundItems.length &&
+        <>
+          <Typography variant={"h6"} align="left" gutterBottom>
+            <strong>Товары, которые не были найдены</strong>
+          </Typography>
+          <Typography align="left" gutterBottom>
+            {notFoundItems.join(', ')}
+          </Typography>
+        </>
       }
     </div>
   );

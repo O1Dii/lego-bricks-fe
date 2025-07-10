@@ -13,7 +13,7 @@ module.exports = merge(common, {
     output: {
         filename: '[name].js',
         path: paths.appPath + "/app/",
-        publicPath: "/",
+        publicPath: "./",
         chunkFilename: '[name].chunk.js'
     },
     optimization: {

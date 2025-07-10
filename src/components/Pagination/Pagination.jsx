@@ -11,18 +11,22 @@ import Typography from '@mui/material/Typography';
 import Select, {SelectChangeEvent} from '@mui/material/Select';
 import {useEffect, useState} from "react";
 
-export default function Pagination({urlBase, itemsLen, productsOnPage, setProductsOnPage}) {
+export default function Pagination({urlBase, itemsLen, amountOfPages = 0, productsOnPage, setProductsOnPage}) {
   // pagination
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const page = parseInt(query.get('page') || '1', 10);
   const [pagesCount, setPagesCount] = useState(1);
   useEffect(() => {
-    setPagesCount(Math.ceil(itemsLen / productsOnPage));
-  }, [productsOnPage, itemsLen])
+      if (amountOfPages) {
+          setPagesCount(amountOfPages)
+      } else {
+          setPagesCount(Math.ceil(itemsLen / productsOnPage));
+      }
+  }, [productsOnPage, itemsLen, amountOfPages])
   // end pagination
 
-  return (itemsLen ?
+  return (itemsLen || amountOfPages ?
     <Stack direction="row" justifyContent="space-between" alignItems="center">
       <MuiPagination
         page={page}
@@ -37,23 +41,23 @@ export default function Pagination({urlBase, itemsLen, productsOnPage, setProduc
           />
         )}
       />
-      <Stack direction="row" alignItems="center" spacing={2}>
-        <p>На странице</p>
-        <FormControl>
-          <Select
-            labelId="products-on-page-label"
-            id="products-on-page-select"
-            value={productsOnPage}
-            onChange={(e) => {
-              setProductsOnPage(e.target.value);
-            }}
-          >
-            <MenuItem value={5}>5</MenuItem>
-            <MenuItem value={10}>10</MenuItem>
-            <MenuItem value={15}>15</MenuItem>
-          </Select>
-        </FormControl>
-      </Stack>
+      {/*<Stack direction="row" alignItems="center" spacing={2}>*/}
+      {/*  <p>На странице</p>*/}
+      {/*  <FormControl>*/}
+      {/*    <Select*/}
+      {/*      labelId="products-on-page-label"*/}
+      {/*      id="products-on-page-select"*/}
+      {/*      value={productsOnPage}*/}
+      {/*      onChange={(e) => {*/}
+      {/*        setProductsOnPage(e.target.value);*/}
+      {/*      }}*/}
+      {/*    >*/}
+      {/*      <MenuItem value={5}>5</MenuItem>*/}
+      {/*      <MenuItem value={10}>10</MenuItem>*/}
+      {/*      <MenuItem value={15}>15</MenuItem>*/}
+      {/*    </Select>*/}
+      {/*  </FormControl>*/}
+      {/*</Stack>*/}
     </Stack>
       :
     <></>

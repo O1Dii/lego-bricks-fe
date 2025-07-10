@@ -5,6 +5,8 @@ export const CartContext = React.createContext({
   addItem: () => {},
   removeItem: () => {},
   isItemInCart: () => {},
+  changeQuantityOfItemInCart: () => {},
+  getCartSum: () => {},
   reloader: 0
 });
 
@@ -37,6 +39,17 @@ export default function CartContextProvider(props) {
     setReloader(reloader + 1);
   };
 
+  const changeQuantityOfItemInCart = (id, newQuantity) => {
+    setItems((prevItems) => {
+      const newItems = prevItems.map((item) =>
+        item.id === id ? { ...item, quantityInCart: newQuantity } : item
+      );
+      localStorage.setItem('cart', JSON.stringify(newItems));
+      return newItems;
+    });
+    setReloader(reloader + 1);
+  };
+
   const removeItem = (id) => {
     setItems((prevItems) => {
       const newItems = prevItems.filter((item) => item.id !== id)
@@ -46,11 +59,20 @@ export default function CartContextProvider(props) {
     setReloader(reloader + 1);
   };
 
+  const getCartSum = () => {
+    const totalPrice = items.reduce((acc, item) => {
+      return acc + item.price * item.quantityInCart
+    }, 0)
+    return Math.round((totalPrice + Number.EPSILON) * 100) / 100
+  }
+
   const context = {
     items,
     addItem,
     removeItem,
     isItemInCart,
+    changeQuantityOfItemInCart,
+    getCartSum,
     reloader
   }
 

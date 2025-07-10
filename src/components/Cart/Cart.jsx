@@ -4,7 +4,7 @@ import Skeleton from "@mui/material/Skeleton";
 import CartTable from "../CartTable/CartTable";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import {CircularProgress} from "@mui/material";
+import {CircularProgress, FormControlLabel} from "@mui/material";
 import Navigation from "../Navigation/Navigation";
 import {CartContext} from "../../context/CartContext";
 import Paper from "@mui/material/Paper";
@@ -18,19 +18,23 @@ import DialogTitle from '@mui/material/DialogTitle';
 import axios from "axios";
 import {ORDERS_POST_ORDER} from "../../constants/links";
 import Stack from "@mui/material/Stack";
+import Checkbox from "@mui/material/Checkbox";
+import {SettingsContext} from "../../context/SettingsContext";
 
 
 export default function Cart() {
-  const {items} = useContext(CartContext);
+  const {items, getCartSum} = useContext(CartContext);
+  const {minCartPrice, rub, byn} = useContext(SettingsContext);
   const [open, setOpen] = useState(false);
   // 0 - are you sure?, 1 - success, 2 - failure
   const [dialogStatus, setDialogStatus] = useState(0);
   const [loading, setLoading] = useState(false);
   const [tel, setTel] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [shippingRequired, setShippingRequired] = useState(false);
   const [validation, setValidation] = useState({
     tel: false,
-    email: false
+    name: false
   });
 
   const openDialog = () => {
@@ -46,23 +50,25 @@ export default function Cart() {
 
   const validate = () => {
     const telMatch = tel.match(/^\+[1-9]{1}[0-9]{3,14}$/g);
-    const emailMatch = email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g);
-    console.log({tel: !telMatch, email: !emailMatch})
+    // const emailMatch = email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g);
+    // console.log({tel: !telMatch, email: !emailMatch})
     setValidation({
       tel: !telMatch,
-      email: !emailMatch
+      // email: !emailMatch
     });
 
-    return telMatch && emailMatch
+    // return telMatch && emailMatch
+    return telMatch
   }
 
   const onDialogConfirm = () => {
     setLoading(true);
     axios
       .post(ORDERS_POST_ORDER(), {
-        items: items,
-        tel: tel,
-        email: email
+        items: items.map(item => ({item_no: item.item_no, quantity: item.quantityInCart})),
+        customer_telephone: tel,
+        customer_name: name,
+        dostavka: shippingRequired
       })
       .then(response => {
         setLoading(false);
@@ -89,11 +95,22 @@ export default function Cart() {
       <Box className={"main-page-content"}>
         <Grid container spacing={0}>
           <Grid item xs={12} md={10} sx={{padding: "20px"}}>
-            <Typography variant="h4" align="left" gutterBottom>
-              <strong>
-                Корзина
-              </strong>
-            </Typography>
+            <Stack direction={'row'} sx={{width: "100%", justifyContent: "space-between", alignItems: "center"}}>
+              <Typography variant="h4" align="left" gutterBottom>
+                <strong>
+                  Корзина
+                </strong>
+              </Typography>
+              <Typography variant="h6" align="right" gutterBottom>
+                <strong>
+                  Текущая стоимость корзины - {getCartSum()} ({
+                    Math.round((getCartSum() * rub + Number.EPSILON) * 100) / 100
+                  } RUB, {
+                    Math.round((getCartSum() * byn + Number.EPSILON) * 100) / 100
+                  } BYN)
+                </strong>
+              </Typography>
+            </Stack>
             <CartTable items={items}/>
           </Grid>
           <Grid item xs={12} md={2}>
@@ -106,11 +123,25 @@ export default function Cart() {
             }}>
               <Box component="form" onSubmit={onFormSubmit} sx={{width: "100%"}} display="flex">
                 <Stack sx={{padding: "15px", width: "100%"}}>
+
+    {/*items_data = data.get('items')*/}
+    {/*customer_name = data.get('customer_name')*/}
+    {/*customer_telephone = data.get('customer_telephone')*/}
+    {/*dostavka = data.get('dostavka', False)*/}
+    {/*# TODO: change*/}
+    {/*total_price = data.get('total_price')*/}
                   <TextField id="tel" error={validation['tel']} sx={{width: "100%", margin: "5px auto"}} label="Номер телефона" variant={"outlined"} value={tel} onChange={e => setTel(e.target.value)}/>
-                  <TextField id="email" error={validation['email']} sx={{width: "100%", margin: "5px auto"}} label="Email" variant={"outlined"} value={email} onChange={e => setEmail(e.target.value)}/>
+                  <TextField id="name" error={validation['name']} sx={{width: "100%", margin: "5px auto"}} label="Имя" variant={"outlined"} value={name} onChange={e => setName(e.target.value)}/>
+                  <FormControlLabel control={<Checkbox checked={shippingRequired} onClick={() => setShippingRequired(!shippingRequired)} />} label="Нужна ли доставка" />
                   <Button className={"accent-button-style"} sx={{width: "100%", margin: "5px auto"}} disabled={!items.length} type="submit">
                     Отправить
                   </Button>
+                  {/*<Button className={"accent-button-style"} sx={{width: "100%", margin: "5px auto"}} disabled={!items.length} type="submit">*/}
+                  {/*  Скачать (как wanted list)*/}
+                  {/*</Button>*/}
+                  <Typography>
+                    Минимальная цена корзины - {minCartPrice} $
+                  </Typography>
                 </Stack>
               </Box>
             </Paper>

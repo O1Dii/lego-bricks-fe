@@ -195,6 +195,17 @@ module.exports = {
             // See https://github.com/webpack/webpack/issues/6571
             sideEffects: true,
           },
+          {
+            test: /\.(png|jpe?g|gif|svg)$/i,
+            use: [
+              {
+                loader: 'file-loader',
+                options: {
+                  name: '[path][name].[ext]',
+                },
+              },
+            ],
+          }
         ]
       }
     ]

@@ -14,14 +14,24 @@ import {useContext, useEffect, useState} from "react";
 import Paper from "@mui/material/Paper";
 import Checkbox from '@mui/material/Checkbox';
 import {CartContext} from "../../context/CartContext";
+import TextField from "@mui/material/TextField";
+import {SettingsContext} from "../../context/SettingsContext";
 
-export default function CatalogTable({items}) {
-  const [productsOnPage, setProductsOnPage] = useState(10);
+export default function CartTable({items}) {
+  const [perPage, setPerPage] = useState(20);
   // end pagination
 
-  const {addItem, removeItem, isItemInCart, reloader} = useContext(CartContext);
+  const {addItem, removeItem, isItemInCart, reloader, changeQuantityOfItemInCart} = useContext(CartContext);
+  const {rub, byn} = useContext(SettingsContext);
 
   const [data, setData] = useState([]);
+
+  const handleCounterChange = (id, max) => (event) => {
+    const value = parseInt(event.target.value, 10);
+    if (value > 0 && value <= max) {
+      changeQuantityOfItemInCart(id, value);
+    }
+  };
 
   useEffect(() => {
     const currentData = items.map((product, index) => {
@@ -35,11 +45,14 @@ export default function CatalogTable({items}) {
           boxShadow: { md: "none", xs: "0px 4px 5px -2px rgba(0,0,0,0.2),0px 7px 10px 1px rgba(0,0,0,0.14),0px 2px 16px 1px rgba(0,0,0,0.12)" }
         }}>
           <Grid container alignItems="center" spacing={2} sx={{marginTop: {xs: "15px", md: 'auto'}, marginBottom: "10px"}}>
-            <Grid sx={{display: "flex", alignItems: "center", justifyContent: {xs: "center", md: "flex-start"}}} xs={6} md={2}>
-              <Box component="img" sx={{height: 90, objectFit: "cover", borderRadius: "10px"}} src={product.imageUrl} alt={""} />
+            {/*<Grid xs={1} md={1}>*/}
+            {/*  <Checkbox />*/}
+            {/*</Grid>*/}
+            <Grid sx={{display: "flex", alignItems: "center", justifyContent: {xs: "center"}}} xs={6} md={2}>
+              <Box component="img" sx={{height: 90, objectFit: "cover", borderRadius: "10px"}} src={product.url} alt={""} />
             </Grid>
             <Grid xs={6} md={2}>
-              {product.condition}
+              {product.lot_id}
             </Grid>
             <Grid xs={6} md={2}>
               {product.color}
@@ -53,12 +66,25 @@ export default function CatalogTable({items}) {
                   Наличие: {product.quantity}
                 </Typography>
                 <Typography>
-                  Цена: {product.price} {product.currency}
+                  Цена: {product.price} $ ({
+                    Math.round((parseFloat(product.price) * rub + Number.EPSILON) * 100) / 100
+                  } RUB, {
+                    Math.round((parseFloat(product.price) * byn + Number.EPSILON) * 100) / 100
+                  } BYN)
                 </Typography>
-                {isItemInCart(product.id)
-                  ? <Button className={"accent-button-style"} onClick={() => removeItem(product.id)}>Убрать из корзины</Button>
-                  : <Button className={"accent-button-style"} onClick={() => addItem(product)}>Добавить в корзину</Button>
-                }
+                <TextField
+                  type="number"
+                  InputProps={{
+                    inputProps: {
+                      max: product.quantity,
+                      min: 0,
+                    },
+                  }}
+                  value={product.quantityInCart}
+                  onChange={handleCounterChange(product.id, product.quantity)}
+                  label="Количество"
+                />
+                <Button className={"accent-button-style"} onClick={() => removeItem(product.id)}>Убрать из корзины</Button>
               </Stack>
             </Grid>
           </Grid>
@@ -77,7 +103,7 @@ export default function CatalogTable({items}) {
         </Box>
       )
     }
-  }, [items, reloader]);
+  }, [items, reloader, rub, byn]);
 
   return (
     <div className="buyouts-table">
@@ -91,7 +117,7 @@ export default function CatalogTable({items}) {
             </Grid>
             <Grid xs={2}>
               <strong>
-                Состояние
+                Номер детали
               </strong>
             </Grid>
             <Grid xs={2}>
@@ -114,7 +140,7 @@ export default function CatalogTable({items}) {
         {data}
       </Box>
       {items &&
-      <Pagination urlBase="cart" itemsLen={items.length} productsOnPage={productsOnPage} setProductsOnPage={setProductsOnPage}/>
+      <Pagination urlBase="cart" itemsLen={items.length} productsOnPage={perPage} setProductsOnPage={setPerPage}/>
       }
     </div>
   );
