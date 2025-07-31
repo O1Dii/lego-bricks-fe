@@ -89,10 +89,11 @@ export default function CatalogTable({items, notFoundItems}) {
             <Grid xs={12} md={3}>
               <Stack>
                 <Typography>
-                  Наличие: {product.quantity}
+                  Наличие: <strong>{product.quantity}</strong>
                 </Typography>
                 <Typography>
-                  Цена: {product.price} $ ({
+                  Цена: <strong>{product.price}</strong> $<br/>
+                  (~{
                     Math.round((parseFloat(product.price) * rub + Number.EPSILON) * 100) / 100
                   } RUB, {
                     Math.round((parseFloat(product.price) * byn + Number.EPSILON) * 100) / 100
@@ -101,7 +102,16 @@ export default function CatalogTable({items, notFoundItems}) {
                 {isItemInCart(product.id)
                   ? <Button className={"accent-button-style"} onClick={() => removeItem(product.id)}>Убрать из корзины</Button>
                   :
-                  <>
+                  <Stack direction={"row"} sx={{alignItems: "center"}}>
+                    <Button
+                      className="accent-button-style"
+                      onClick={() => handleAddToCart(product)}
+                      disabled={!(counters[product.id] > 0)}
+                      sx={{lineHeight: "normal"}}
+                      style={{height: "40px"}}
+                    >
+                      Добавить в корзину
+                    </Button>
                     <TextField
                       type="number"
                       InputProps={{
@@ -110,18 +120,13 @@ export default function CatalogTable({items, notFoundItems}) {
                           min: 0,
                         },
                       }}
+                      size="small"
+                      sx={{width: "100%"}}
                       value={counters[product.id] || ''}
                       onChange={handleCounterChange(product.id, product.quantity)}
                       label="Количество"
                     />
-                    <Button
-                      className="accent-button-style"
-                      onClick={() => handleAddToCart(product)}
-                      disabled={!(counters[product.id] > 0)}
-                    >
-                      Добавить в корзину
-                    </Button>
-                  </>
+                  </Stack>
                 }
               </Stack>
             </Grid>

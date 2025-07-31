@@ -49,7 +49,7 @@ export default function Cart() {
   }
 
   const validate = () => {
-    const telMatch = tel.match(/^\+[1-9]{1}[0-9]{3,14}$/g);
+    const telMatch = tel.match(/^\+[1-9]\d{0,2}[\s\-]?\(?\d{1,4}\)?([\s\-]?\d{2,4}){2,5}$/g);
     // const emailMatch = email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g);
     // console.log({tel: !telMatch, email: !emailMatch})
     setValidation({
@@ -101,14 +101,13 @@ export default function Cart() {
                   Корзина
                 </strong>
               </Typography>
-              <Typography variant="h6" align="right" gutterBottom>
-                <strong>
-                  Текущая стоимость корзины - {getCartSum()} ({
-                    Math.round((getCartSum() * rub + Number.EPSILON) * 100) / 100
-                  } RUB, {
-                    Math.round((getCartSum() * byn + Number.EPSILON) * 100) / 100
-                  } BYN)
-                </strong>
+              <Typography align="right" gutterBottom>
+                Минимальная стоимость корзины - <strong>{minCartPrice}</strong> $ <br/>
+                Текущая стоимость корзины - <strong>{getCartSum()}</strong> $ (~{
+                  Math.round((getCartSum() * rub + Number.EPSILON) * 100) / 100
+                } RUB, {
+                  Math.round((getCartSum() * byn + Number.EPSILON) * 100) / 100
+                } BYN)
               </Typography>
             </Stack>
             <CartTable items={items}/>
@@ -121,6 +120,9 @@ export default function Cart() {
               height: "100%",
               minHeight: "95vh"
             }}>
+              <Typography sx={{fontSize: "10px", padding: "15px 15px 0 15px"}} align="left">
+                Заполните контактные данные, чтобы закончить оформление
+              </Typography>
               <Box component="form" onSubmit={onFormSubmit} sx={{width: "100%"}} display="flex">
                 <Stack sx={{padding: "15px", width: "100%"}}>
 
@@ -132,16 +134,13 @@ export default function Cart() {
     {/*total_price = data.get('total_price')*/}
                   <TextField id="tel" error={validation['tel']} sx={{width: "100%", margin: "5px auto"}} label="Номер телефона" variant={"outlined"} value={tel} onChange={e => setTel(e.target.value)}/>
                   <TextField id="name" error={validation['name']} sx={{width: "100%", margin: "5px auto"}} label="Имя" variant={"outlined"} value={name} onChange={e => setName(e.target.value)}/>
-                  <FormControlLabel control={<Checkbox checked={shippingRequired} onClick={() => setShippingRequired(!shippingRequired)} />} label="Нужна ли доставка" />
+                  <FormControlLabel control={<Checkbox checked={shippingRequired} onClick={() => setShippingRequired(!shippingRequired)} />} label="Мне нужна доставка" />
                   <Button className={"accent-button-style"} sx={{width: "100%", margin: "5px auto"}} disabled={!items.length} type="submit">
                     Отправить
                   </Button>
                   {/*<Button className={"accent-button-style"} sx={{width: "100%", margin: "5px auto"}} disabled={!items.length} type="submit">*/}
                   {/*  Скачать (как wanted list)*/}
                   {/*</Button>*/}
-                  <Typography>
-                    Минимальная цена корзины - {minCartPrice} $
-                  </Typography>
                 </Stack>
               </Box>
             </Paper>

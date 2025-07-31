@@ -52,7 +52,7 @@ export default function CartTable({items}) {
               <Box component="img" sx={{height: 90, objectFit: "cover", borderRadius: "10px"}} src={product.url} alt={""} />
             </Grid>
             <Grid xs={6} md={2}>
-              {product.lot_id}
+              {product.item_no}
             </Grid>
             <Grid xs={6} md={2}>
               {product.color}
@@ -63,28 +63,40 @@ export default function CartTable({items}) {
             <Grid xs={12} md={3}>
               <Stack>
                 <Typography>
-                  Наличие: {product.quantity}
+                  Наличие: <strong>{product.quantity}</strong>
                 </Typography>
                 <Typography>
-                  Цена: {product.price} $ ({
+                  Цена: <strong>{product.price}</strong> $<br/>
+                  (~{
                     Math.round((parseFloat(product.price) * rub + Number.EPSILON) * 100) / 100
                   } RUB, {
                     Math.round((parseFloat(product.price) * byn + Number.EPSILON) * 100) / 100
                   } BYN)
                 </Typography>
-                <TextField
-                  type="number"
-                  InputProps={{
-                    inputProps: {
-                      max: product.quantity,
-                      min: 0,
-                    },
-                  }}
-                  value={product.quantityInCart}
-                  onChange={handleCounterChange(product.id, product.quantity)}
-                  label="Количество"
-                />
-                <Button className={"accent-button-style"} onClick={() => removeItem(product.id)}>Убрать из корзины</Button>
+                <Stack direction={"row"} sx={{alignItems: "center"}}>
+                  <Button
+                    className={"accent-button-style"}
+                    sx={{lineHeight: "normal"}}
+                    style={{height: "40px"}}
+                    onClick={() => removeItem(product.id)}
+                  >
+                    Убрать из корзины
+                  </Button>
+                  <TextField
+                    type="number"
+                    InputProps={{
+                      inputProps: {
+                        max: product.quantity,
+                        min: 0,
+                      },
+                    }}
+                    size="small"
+                    sx={{width: "100%"}}
+                    value={product.quantityInCart}
+                    onChange={handleCounterChange(product.id, product.quantity)}
+                    label="Количество"
+                  />
+                </Stack>
               </Stack>
             </Grid>
           </Grid>

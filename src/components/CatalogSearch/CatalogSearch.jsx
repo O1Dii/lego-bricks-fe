@@ -27,7 +27,7 @@ const StyledTextField = styled(TextField)({
 
 export default function CatalogSearch({value, setValue, onSearchClick}) {
   return (
-    <Box component="form" sx={{alignItems: "center", width: "50%"}} onSubmit={onSearchClick} display="flex">
+    <Box component="form" sx={{alignItems: "center"}} onSubmit={onSearchClick}>
       <StyledTextField
         sx={{width: "100%", backgroundColor: "white"}}
         size="small"

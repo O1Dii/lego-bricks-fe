@@ -1,6 +1,16 @@
 import React, {useContext, useEffect, useState} from 'react';
 import Grid from "@mui/material/Unstable_Grid2";
-import {Alert, Button, Collapse, List, ListItemButton, ListItemIcon, ListItemText, Snackbar} from "@mui/material";
+import {
+  Alert,
+  Button,
+  Collapse,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Snackbar,
+  Tooltip
+} from "@mui/material";
 import Skeleton from "@mui/material/Skeleton";
 import CatalogTable from "../CatalogTable/CatalogTable";
 import Box from "@mui/material/Box";
@@ -109,23 +119,7 @@ export default function Catalog() {
 
   return (
     <>
-      <Navigation>
-        <Stack direction={'row'}>
-          <Button
-            className={"accent-button-style"}
-            sx={{margin: "auto 15px auto 0"}}
-            component="label"
-          >
-            Загрузить Wanted list
-            <VisuallyHiddenInput
-              type="file"
-              onChange={onFileUpload}
-              multiple
-            />
-          </Button>
-          <CatalogSearch value={searchValue} setValue={setSearchValue} onSearchClick={onSearchClick}/>
-        </Stack>
-      </Navigation>
+      <Navigation />
       <Snackbar
         open={successSnackbarOpen}
         autoHideDuration={5000}
@@ -162,8 +156,28 @@ export default function Catalog() {
               width: "100%",
               borderRadius: "0",
               height: "100%",
-              minHeight: "95vh"
+              minHeight: "95vh",
+              paddingTop: "20px"
             }}>
+              <Stack>
+                <div style={{margin: "auto 10px"}}>
+                  <CatalogSearch value={searchValue} setValue={setSearchValue} onSearchClick={onSearchClick}/>
+                </div>
+                <Tooltip title="Загрузите Wanted list с BL — система автоматически найдёт все доступные детали из вашего списка">
+                  <Button
+                    className={"accent-button-style"}
+                    sx={{margin: "10px"}}
+                    component="label"
+                  >
+                    Загрузить Wanted list
+                    <VisuallyHiddenInput
+                      type="file"
+                      onChange={onFileUpload}
+                      multiple
+                    />
+                  </Button>
+                </Tooltip>
+              </Stack>
               <Typography variant="h6" align="left" gutterBottom sx={{padding: "20px 15px"}}>
                 <strong>
                   Категории
