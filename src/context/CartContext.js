@@ -4,6 +4,7 @@ export const CartContext = React.createContext({
   items: [],
   addItem: () => {},
   removeItem: () => {},
+  clearCart: () => {},
   isItemInCart: () => {},
   changeQuantityOfItemInCart: () => {},
   getCartSum: () => {},
@@ -59,6 +60,11 @@ export default function CartContextProvider(props) {
     setReloader(reloader + 1);
   };
 
+  const clearCart = () => {
+    setItems([]);
+    setReloader(reloader + 1);
+  }
+
   const getCartSum = () => {
     const totalPrice = items.reduce((acc, item) => {
       return acc + item.price * item.quantityInCart
@@ -70,6 +76,7 @@ export default function CartContextProvider(props) {
     items,
     addItem,
     removeItem,
+    clearCart,
     isItemInCart,
     changeQuantityOfItemInCart,
     getCartSum,

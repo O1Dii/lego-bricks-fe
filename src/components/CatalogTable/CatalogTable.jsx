@@ -75,7 +75,7 @@ export default function CatalogTable({items, notFoundItems}) {
             {/*  <Checkbox />*/}
             {/*</Grid>*/}
             <Grid sx={{display: "flex", alignItems: "center", justifyContent: {xs: "center"}}} xs={6} md={2}>
-              <Box component="img" sx={{height: 90, objectFit: "cover", borderRadius: "10px"}} src={product.url} alt={""} />
+              <Box component="img" sx={{height: 90, objectFit: "cover", borderRadius: "10px", maxWidth: "90%"}} src={product.url} alt={""} />
             </Grid>
             <Grid xs={6} md={2}>
               {product.item_no}
@@ -188,7 +188,7 @@ export default function CatalogTable({items, notFoundItems}) {
       {items && !notFoundItems &&
       <Pagination urlBase="catalog" itemsLen={items.length} amountOfPages={pages} productsOnPage={perPage} setProductsOnPage={setPerPage}/>
       }
-      {notFoundItems && notFoundItems.length &&
+      {notFoundItems && notFoundItems.length ?
         <>
           <Typography variant={"h6"} align="left" gutterBottom>
             <strong>Товары, которые не были найдены</strong>
@@ -197,6 +197,8 @@ export default function CatalogTable({items, notFoundItems}) {
             {notFoundItems.join(', ')}
           </Typography>
         </>
+        :
+        <></>
       }
     </div>
   );

@@ -50,8 +50,9 @@ export default function ItemsContextProvider(props) {
     //   errorMessage: ''
     // })
     setLoading(true)
+    const fullCategory = category ? `Parts / ${category}` : ''
     axios
-      .get(ITEMS_GET(search, page, category))
+      .get(ITEMS_GET(search, page, fullCategory))
       .then(response => {
         setItems({items: response.data.items, errorMessage: ''});
         setPages(response.data.pages);
