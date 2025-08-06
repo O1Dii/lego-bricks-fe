@@ -6,6 +6,7 @@ export const ITEMS_GET = (search, page, category) => `${API_BASE()}catalog?page=
 export const ITEMS_GET_ITEM_BY_ID = (id) => `${API_BASE()}catalog_item/${id}`;
 export const ORDERS_POST_ORDER = () => `${API_BASE()}cart`;
 export const WANTED_LIST_SAVE = () => `${API_BASE()}save_as_wanted_list`;
+export const CART_PDF_SAVE = () => `${API_BASE()}download_pdf`;
 export const CATEGORIES_GET = () => `${API_BASE()}category-structure`;
 export const GET_PRESIGNED_URL = () => `${API_BASE()}presigned_url`;
 export const WANTED_LIST = () => `${API_BASE()}wanted_list`;

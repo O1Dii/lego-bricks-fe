@@ -195,7 +195,7 @@ export default function Catalog() {
           <Grid item xs={10} sx={{padding: "20px"}}>
             <Typography variant="h4" align="left" gutterBottom>
               <strong>
-                Каталог деталей
+                Каталог деталей{!items['not_found_items'] ? '' : ' (из загруженного Wanted List)'}
               </strong>
             </Typography>
             {loading ?

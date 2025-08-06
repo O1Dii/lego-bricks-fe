@@ -16,7 +16,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import axios from "axios";
-import {ORDERS_POST_ORDER, WANTED_LIST_SAVE} from "../../constants/links";
+import {CART_PDF_SAVE, ORDERS_POST_ORDER, WANTED_LIST_SAVE} from "../../constants/links";
 import Stack from "@mui/material/Stack";
 import Checkbox from "@mui/material/Checkbox";
 import {SettingsContext} from "../../context/SettingsContext";
@@ -28,6 +28,7 @@ export default function Cart() {
   const [open, setOpen] = useState(false);
   // 0 - are you sure?, 1 - success, 2 - failure
   const [dialogStatus, setDialogStatus] = useState(0);
+  const [dialogMessage, setDialogMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [failureSnackbarOpen, setFailureSnackbarOpen] = useState(false);
   const [tel, setTel] = useState('');
@@ -77,8 +78,12 @@ export default function Cart() {
         setDialogStatus(1);
       })
       .catch(error => {
+        setDialogMessage('');
         setLoading(false);
         setDialogStatus(2);
+        if (error.response && error.response.status === 409) {
+          setDialogMessage(error.response.data?.error);
+        }
       })
   }
 
@@ -101,6 +106,26 @@ export default function Cart() {
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = 'wanted_list.xml';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      })
+      .catch(() => {
+        setFailureSnackbarOpen(true);
+      })
+  }
+
+  const saveAsPdf = () => {
+    axios
+      .post(CART_PDF_SAVE(), {items}, {
+        responseType: 'blob'
+      })
+      .then(response => {
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'order_details.pdf';
         document.body.appendChild(link);
         link.click();
         link.remove();
@@ -177,6 +202,9 @@ export default function Cart() {
                   <Button className={"accent-button-style"} sx={{width: "100%", margin: "5px auto"}} onClick={saveAsWantedList} disabled={!items.length}>
                     Скачать (как wanted list)
                   </Button>
+                  <Button className={"accent-button-style"} sx={{width: "100%", margin: "5px auto"}} onClick={saveAsPdf} disabled={!items.length}>
+                    Скачать (как pdf)
+                  </Button>
                 </Stack>
               </Box>
             </Paper>
@@ -229,11 +257,11 @@ export default function Cart() {
           :
           <>
             <DialogTitle id="alert-dialog-title">
-              Отправить заказ?
+              Ошибка
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
-                При отправке заказа произошла ошибка, повторите попытку позже
+                При отправке заказа произошла ошибка, повторите попытку позже. {dialogMessage}
               </DialogContentText>
             </DialogContent>
             <DialogActions>
