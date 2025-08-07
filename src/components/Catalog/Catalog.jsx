@@ -44,11 +44,10 @@ const VisuallyHiddenInput = styled('input')({
 
 
 export default function Catalog() {
-  const navigate = useNavigate();
   const {items, categories, loadItems, loadCategories, loading, categoriesLoading, uploadWantedList} = useContext(ItemsContext);
   const [searchValue, setSearchValue] = useState('');
-  const [categoryOpen, setCategoryOpen] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [categoryOpen, setCategoryOpen] = useState(['Parts']);
+  const [selectedCategory, setSelectedCategory] = useState('Parts');
 
   const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
   const [failureSnackbarOpen, setFailureSnackbarOpen] = useState(false);
@@ -81,8 +80,6 @@ export default function Catalog() {
     await uploadWantedList(file);
   };
 
-  console.log(items);
-
   function renderCategories(categories, depth = 0, parentCategories) {
     return Object.entries(categories).map(([key, value]) => {
       const hasChildren = Object.keys(value).length > 0;
@@ -91,8 +88,8 @@ export default function Catalog() {
       return (
         <React.Fragment key={key}>
           <ListItemButton
-            onClick={hasChildren ? () => toggleCategory(key) : () => setSelectedCategory(key === selectedCategory.split(' / ').at(-1) ? '' : depth ? `${parentCategories} / ${key}` : key)}
-            sx={{ pl: 2 + depth * 2, backgroundColor: key === selectedCategory.split(' / ').at(-1) && key !== '' && 'darkgrey' }}
+            onClick={hasChildren ? () => toggleCategory(key) : () => setSelectedCategory(key === selectedCategory.split(' / ').at(-1) ? 'Parts' : depth ? `${parentCategories} / ${key}` : key)}
+            sx={{ pl: 2 + depth * 2, backgroundColor: key === selectedCategory.split(' / ').at(depth) && key !== '' && 'darkgrey' }}
           >
             <ListItemText primary={key} />
             {hasChildren &&
