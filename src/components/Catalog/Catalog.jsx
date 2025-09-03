@@ -3,7 +3,7 @@ import Grid from "@mui/material/Unstable_Grid2";
 import {
   Alert,
   Button,
-  Collapse,
+  Collapse, Divider,
   List,
   ListItemButton,
   ListItemIcon,
@@ -28,6 +28,8 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import {ExpandLess, ExpandMore, StarBorder} from "@mui/icons-material";
+import getSvg from "../../constants/svg";
+import CategoriesMenu from "../CategoriesMenu/CategoriesMenu";
 
 
 const VisuallyHiddenInput = styled('input')({
@@ -80,33 +82,33 @@ export default function Catalog() {
     await uploadWantedList(file);
   };
 
-  function renderCategories(categories, depth = 0, parentCategories) {
-    return Object.entries(categories).map(([key, value]) => {
-      const hasChildren = Object.keys(value).length > 0;
-      const isOpen = categoryOpen.includes(key);
-
-      return (
-        <React.Fragment key={key}>
-          <ListItemButton
-            onClick={hasChildren ? () => toggleCategory(key) : () => setSelectedCategory(key === selectedCategory.split(' / ').at(-1) ? 'Parts' : depth ? `${parentCategories} / ${key}` : key)}
-            sx={{ pl: 2 + depth * 2, backgroundColor: key === selectedCategory.split(' / ').at(depth) && key !== '' && 'darkgrey' }}
-          >
-            <ListItemText primary={key} />
-            {hasChildren &&
-              (isOpen ? <ExpandLess /> : <ExpandMore />)}
-          </ListItemButton>
-
-          {hasChildren && (
-            <Collapse in={isOpen} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                {renderCategories(value, depth + 1, depth ? `${parentCategories} / ${key}` : key)}
-              </List>
-            </Collapse>
-          )}
-        </React.Fragment>
-      );
-    });
-  }
+  // function renderCategories(categories, depth = 0, parentCategories) {
+  //   return Object.entries(categories).map(([key, value]) => {
+  //     const hasChildren = Object.keys(value).length > 0;
+  //     const isOpen = categoryOpen.includes(key);
+  //
+  //     return (
+  //       <React.Fragment key={key}>
+  //         <ListItemButton
+  //           onClick={hasChildren ? () => toggleCategory(key) : () => setSelectedCategory(key === selectedCategory.split(' / ').at(-1) ? 'Parts' : depth ? `${parentCategories} / ${key}` : key)}
+  //           sx={{ pl: 2 + depth * 2, backgroundColor: key === selectedCategory.split(' / ').at(depth) && key !== '' && 'darkgrey' }}
+  //         >
+  //           <ListItemText primary={key} />
+  //           {hasChildren &&
+  //             (isOpen ? <ExpandLess /> : <ExpandMore />)}
+  //         </ListItemButton>
+  //
+  //         {hasChildren && (
+  //           <Collapse in={isOpen} timeout="auto" unmountOnExit>
+  //             <List component="div" disablePadding>
+  //               {renderCategories(value, depth + 1, depth ? `${parentCategories} / ${key}` : key)}
+  //             </List>
+  //           </Collapse>
+  //         )}
+  //       </React.Fragment>
+  //     );
+  //   });
+  // }
 
   useEffect(() => {
     console.log('use effect')
@@ -147,37 +149,45 @@ export default function Catalog() {
       </Snackbar>
       <Box className={"main-page-content"}>
         <Grid container spacing={0}>
-          <Grid item xs={2}>
+          <Grid item xs={3}>
             <Paper sx={{
-              backgroundColor: "#f2f2f2",
+              backgroundColor: "#ECECEC",
               width: "100%",
               borderRadius: "0",
               height: "100%",
               minHeight: "95vh",
-              paddingTop: "20px"
+              padding: "20px"
             }}>
               <Stack>
-                <div style={{margin: "auto 10px"}}>
+                <div>
                   <CatalogSearch value={searchValue} setValue={setSearchValue} onSearchClick={onSearchClick}/>
                 </div>
                 <Tooltip title="Загрузите Wanted list с BL — система автоматически найдёт все доступные детали из вашего списка">
-                  <Button
+                  <label
                     className={"accent-button-style"}
-                    sx={{margin: "10px"}}
-                    component="label"
+                    style={{height: "auto", margin: "10px 0 20px 0", cursor: "pointer"}}
                   >
-                    Загрузить Wanted list
+                    <Stack direction={"row"} sx={{alignItems: "center", marginRight: "auto"}}>
+                      <div style={{marginRight: "10px"}}>
+                        {getSvg('upload', 'black')}
+                      </div>
+                      <Stack>
+                        <Typography fontSize={15} align={"left"}>Загрузить Wanted list</Typography>
+                        <Typography className={"grey-text"} fontSize={14} align={"left"}>Загрузите текстовый файл весом до 5Мб</Typography>
+                      </Stack>
+                    </Stack>
                     <VisuallyHiddenInput
                       type="file"
                       onChange={onFileUpload}
                       multiple
                     />
-                  </Button>
+                  </label>
                 </Tooltip>
               </Stack>
-              <Typography variant="h6" align="left" gutterBottom sx={{padding: "20px 15px"}}>
+              <Divider sx={{width: "120%", borderColor: "white", position: "relative", left: "-20px"}}/>
+              <Typography align="left" fontSize={18} sx={{marginTop: "10px"}}>
                 <strong>
-                  Категории
+                  Каталог деталей
                 </strong>
               </Typography>
               {categoriesLoading ?
@@ -186,11 +196,11 @@ export default function Catalog() {
                   <Skeleton variant="rounded" />
                   <Skeleton variant="rounded" />
                 </>
-                : renderCategories(categories)}
+                : <CategoriesMenu categories={categories} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />}
             </Paper>
           </Grid>
-          <Grid item xs={10} sx={{padding: "20px"}}>
-            <Typography variant="h4" align="left" gutterBottom>
+          <Grid item xs={9} sx={{padding: "20px"}}>
+            <Typography align="left" fontSize={28}>
               <strong>
                 Каталог деталей{!items['not_found_items'] ? '' : ' (из загруженного Wanted List)'}
               </strong>

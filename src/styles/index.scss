@@ -1,9 +1,19 @@
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;       /* наследовать шрифт */
+  color: inherit;      /* наследовать цвет текста */
+  cursor: pointer;
+}
+
 .main-page-content{
 }
 
-.item-row:hover {
-  background-color: lightlightgrey;
-}
+//.item-row:hover {
+//  background-color: lightlightgrey;
+//}
 
 .App {
   text-align: center;
@@ -40,7 +50,7 @@
 }
 
 
-.black-text-button.MuiButton-root{
+.black-text-button{
   color: black;
   border-radius: 5px;
   font-size: 0.8rem;
@@ -49,7 +59,7 @@
   text-transform: none;
 }
 
-.button-style.MuiButton-root{
+.button-style{
   background-color: white;
   border: 2px solid lightgrey;
   color: black;
@@ -61,18 +71,218 @@
   text-transform: none;
 }
 
-.accent-button-style.MuiButton-root{
-  background-color: lightgrey;
+.accent-button-style{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
   color: black;
   //width: 100%;
-  border-radius: 5px;
-  font-size: 0.8rem;
-  font-weight: bold;
+  font-size: 16px;
+  font-weight: 500;
   height: 35px;
   text-transform: none;
+  transition: 0s;
+
+  &:hover {
+    color: #dc1914;
+
+    & svg>* {
+      fill: #dc1914;
+      stroke: #dc1914;
+    }
+
+    & .grey-text {
+      color: #dc1914;
+    }
+  }
 }
 
-.left-switch-button.MuiToggleButton-root{
+.filled-normal-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #FF1B15;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  height: 62px;
+  text-transform: none;
+  transition: 0s;
+
+  &:disabled {
+    pointer-events: none;
+    background-color: #FF625A;
+  }
+
+  &:hover {
+    background-color: #FF625A;
+    color: white;
+  }
+
+  &__secondary {
+    background-color: white;
+    color: black;
+
+    &:disabled {
+      pointer-events: none;
+      background-color: #BABABA;
+    }
+  }
+}
+
+.cart-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #232121;
+  color: white;
+  padding: 0 30px;
+  height: 100%;
+  font-size: 16px;
+  font-weight: 500;
+  text-transform: none;
+  transition: 0s;
+
+  &:hover {
+    background-color: #4F4D4D;
+  }
+
+  & svg>* {
+    stroke: white;
+  }
+}
+
+.pagination-button {
+  margin: 0 4px;
+  padding: 6px 12px;
+
+  &:hover {
+    color: white;
+    background-color: #FF625A;
+  }
+}
+
+.quantity-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 30px;
+  width: 30px;
+  margin: 0 4px;
+  padding: 6px 12px;
+  color: white;
+  background-color: #BABABA;
+  font-size: 24px;
+
+  &:hover {
+    background-color: #FF625A;
+  }
+}
+
+.input-holder {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  height: 62px;
+}
+
+.input-icon {
+  display: flex;
+  align-items: center;
+  margin: auto 8px;
+}
+
+.input-style {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 16px;
+  color: black;
+
+  &::placeholder {
+    color: black;
+  }
+}
+
+.error-text {
+  color: #FF1B15;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+  text-align: start;
+}
+
+.custom-checkbox {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* скрываем стандартный чекбокс */
+.custom-checkbox input {
+  display: none;
+}
+
+/* кастомный квадрат */
+.custom-checkbox .checkmark {
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border: 1px solid transparent;
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+/* hover — красная рамка */
+.custom-checkbox:hover .checkmark {
+  border-color: red;
+}
+
+/* active — красный фон */
+.custom-checkbox input:checked + .checkmark {
+  background: red;
+  border-color: red;
+}
+
+/* галочка */
+.custom-checkbox input:checked + .checkmark::after {
+  content: "✓";
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
+}
+
+
+.plain-number {
+  all: unset;
+  box-sizing: border-box;
+  width: 50px;
+  height: 40px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+/* убрать стрелки в Chrome, Edge, Safari */
+.plain-number::-webkit-outer-spin-button,
+.plain-number::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* убрать стрелки в Firefox */
+.plain-number[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.left-switch-button{
   border-top-left-radius: 15px;
   border-bottom-left-radius: 15px;
   background-color: white;
@@ -85,7 +295,7 @@
   text-transform: none;
 }
 
-.right-switch-button.MuiToggleButton-root{
+.right-switch-button{
   border-top-right-radius: 15px;
   border-bottom-right-radius: 15px;
   background-color: white;
@@ -98,7 +308,7 @@
   text-transform: none;
 }
 
-.selected-switch-button.MuiToggleButton-root{
+.selected-switch-button{
   background-color: lightgrey !important;
   color: black;
   //width: 100%;
@@ -107,4 +317,8 @@
   font-weight: bold;
   height: 35px;
   text-transform: none;
+}
+
+.grey-text {
+  color: #00000080;
 }

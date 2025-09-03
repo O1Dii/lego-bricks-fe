@@ -3,6 +3,8 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import * as React from "react";
 import {styled} from "@mui/styles";
+import getSvg from "../../constants/svg";
+import {InputAdornment} from "@mui/material";
 
 
 const StyledTextField = styled(TextField)({
@@ -27,17 +29,21 @@ const StyledTextField = styled(TextField)({
 
 export default function CatalogSearch({value, setValue, onSearchClick}) {
   return (
-    <Box component="form" sx={{alignItems: "center"}} onSubmit={onSearchClick}>
-      <StyledTextField
-        sx={{width: "100%", backgroundColor: "white"}}
-        size="small"
-        color="secondary"
+    <Box
+      component="form"
+      className="input-holder"
+      onSubmit={onSearchClick}
+    >
+      <span className="input-icon">
+        {getSvg("search", "black")}
+      </span>
+      <input
+        type="text"
         value={value}
-        onChange={(e) => {setValue(e.target.value)}}
-        label="Поиск"
-        variant="outlined"
+        className="input-style"
+        onChange={(e) => setValue(e.target.value)}
+        placeholder="Поиск"
       />
-      <Button type="submit" className={"button-style"}>Поиск</Button>
     </Box>
   );
 }

@@ -30,12 +30,12 @@ function LoggedInLayout() {
           <Stack spacing={2} sx={{height: "100%", display: "flex", alignItems: "center", justifyContent: "center", margin: "50px"}}>
             <TextField id="login" sx={{width: "100%"}} label="Номер телефона" variant={"outlined"} value={login} onChange={e => setLogin(e.target.value)}/>
             <TextField id="password" sx={{width: "100%"}} label="Пароль" variant={"outlined"} value={password} onChange={e => setPassword(e.target.value)}/>
-            <Button className={"accent-button-style"} onClick={() => {
+            <button className={"accent-button-style"} onClick={() => {
               authenticate(login, password);
             }}>
               Войти
-            </Button>
-            {/*<Button className={"button-style"} component={Link} to={"https://t.me/test_buyout_bot"}>Telegram Регистрация</Button>*/}
+            </button>
+            {/*<button className={"button-style"} component={Link} to={"https://t.me/test_buyout_bot"}>Telegram Регистрация</button>*/}
           </Stack>
         </Grid>
       </Grid>

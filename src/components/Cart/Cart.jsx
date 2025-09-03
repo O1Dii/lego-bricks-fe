@@ -4,28 +4,20 @@ import Skeleton from "@mui/material/Skeleton";
 import CartTable from "../CartTable/CartTable";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import {Alert, CircularProgress, FormControlLabel, Snackbar} from "@mui/material";
+import {Alert, CircularProgress, Snackbar} from "@mui/material";
 import Navigation from "../Navigation/Navigation";
 import {CartContext} from "../../context/CartContext";
 import Paper from "@mui/material/Paper";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
 import axios from "axios";
 import {CART_PDF_SAVE, ORDERS_POST_ORDER, WANTED_LIST_SAVE} from "../../constants/links";
 import Stack from "@mui/material/Stack";
-import Checkbox from "@mui/material/Checkbox";
 import {SettingsContext} from "../../context/SettingsContext";
+import getSvg from "../../constants/svg";
 
 
 export default function Cart() {
-  const {items, getCartSum, clearCart} = useContext(CartContext);
-  const {minCartPrice, rub, byn} = useContext(SettingsContext);
-  const [open, setOpen] = useState(false);
+  const {items, getCartSum, getQuantitiesSum, clearCart} = useContext(CartContext);
+  const {minCartPrice} = useContext(SettingsContext);
   // 0 - are you sure?, 1 - success, 2 - failure
   const [dialogStatus, setDialogStatus] = useState(0);
   const [dialogMessage, setDialogMessage] = useState('');
@@ -39,28 +31,16 @@ export default function Cart() {
     name: false
   });
 
-  const openDialog = () => {
-    setDialogStatus(0);
-    setOpen(true);
-  }
-
-  const closeDialog = () => {
-    if (!loading) {
-      setOpen(false);
-    }
-  }
-
   const validate = () => {
     const telMatch = tel.match(/^\+[1-9]\d{0,2}[\s\-]?\(?\d{1,4}\)?([\s\-]?\d{2,4}){2,5}$/g);
+    const nameMatch = name.match(/^[A-Za-zА-Яа-яЁё]+(?:[-\s][A-Za-zА-Яа-яЁё]+)*$/g);
     // const emailMatch = email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g);
-    // console.log({tel: !telMatch, email: !emailMatch})
     setValidation({
       tel: !telMatch,
-      // email: !emailMatch
+      name: !nameMatch
     });
 
-    // return telMatch && emailMatch
-    return telMatch
+    return telMatch && nameMatch
   }
 
   const onDialogConfirm = () => {
@@ -74,7 +54,6 @@ export default function Cart() {
       })
       .then(response => {
         setLoading(false);
-        clearCart();
         setDialogStatus(1);
       })
       .catch(error => {
@@ -89,15 +68,15 @@ export default function Cart() {
 
   const onFormSubmit = (e) => {
     e.preventDefault();
-    console.log(validate());
     if (validate()) {
-      openDialog()
+      onDialogConfirm()
     }
   }
 
   const saveAsWantedList = () => {
+    setLoading(true);
     axios
-      .post(WANTED_LIST_SAVE(), {items}, {
+      .post(WANTED_LIST_SAVE(), {items: items.map(item => ({id: item.id, quantity: item.quantityInCart}))}, {
         responseType: 'blob'
       })
       .then(response => {
@@ -109,15 +88,18 @@ export default function Cart() {
         document.body.appendChild(link);
         link.click();
         link.remove();
+        setLoading(false);
       })
       .catch(() => {
         setFailureSnackbarOpen(true);
+        setLoading(false);
       })
   }
 
   const saveAsPdf = () => {
+    setLoading(true);
     axios
-      .post(CART_PDF_SAVE(), {items}, {
+      .post(CART_PDF_SAVE(), {items: items.map(item => ({id: item.id, quantity: item.quantityInCart}))}, {
         responseType: 'blob'
       })
       .then(response => {
@@ -129,10 +111,22 @@ export default function Cart() {
         document.body.appendChild(link);
         link.click();
         link.remove();
+        setLoading(false);
       })
       .catch(() => {
         setFailureSnackbarOpen(true);
+        setLoading(false);
       })
+  }
+
+  const resetDialogStatus = () => {
+    setDialogStatus(0);
+    setDialogMessage('');
+  }
+
+  const clearAll = () => {
+    clearCart();
+    resetDialogStatus();
   }
 
   return (
@@ -155,121 +149,113 @@ export default function Cart() {
       </Snackbar>
       <Box className={"main-page-content"}>
         <Grid container spacing={0}>
-          <Grid item xs={12} md={10} sx={{padding: "20px"}}>
+          <Grid item xs={12} md={9} sx={{padding: "20px"}}>
             <Stack direction={'row'} sx={{width: "100%", justifyContent: "space-between", alignItems: "center"}}>
               <Typography variant="h4" align="left" gutterBottom>
                 <strong>
                   Корзина
                 </strong>
               </Typography>
-              <Typography align="right" gutterBottom>
-                <span style={{color: getCartSum() < minCartPrice ? 'red' : 'black'}}>Минимальная стоимость корзины - <strong>{minCartPrice}</strong> $ </span><br/>
-                Текущая стоимость корзины - <strong>{getCartSum()}</strong> $ (~{
-                  Math.round((getCartSum() * rub + Number.EPSILON) * 100) / 100
-                } RUB, {
-                  Math.round((getCartSum() * byn + Number.EPSILON) * 100) / 100
-                } BYN)
-              </Typography>
             </Stack>
-            <CartTable items={items}/>
+            <CartTable items={items} loading={loading || dialogStatus > 0}/>
           </Grid>
-          <Grid item xs={12} md={2}>
+          <Grid item xs={12} md={3}>
             <Paper sx={{
-              backgroundColor: "#f2f2f2",
+              backgroundColor: "#ECECEC",
               width: "100%",
               borderRadius: "0",
               height: "100%",
-              minHeight: "95vh"
+              minHeight: "95vh",
+              padding: "20px"
             }}>
-              <Typography sx={{fontSize: "10px", padding: "15px 15px 0 15px"}} align="left">
-                Заполните контактные данные, чтобы закончить оформление
-              </Typography>
-              <Box component="form" onSubmit={onFormSubmit} sx={{width: "100%"}} display="flex">
-                <Stack sx={{padding: "15px", width: "100%"}}>
-
-    {/*items_data = data.get('items')*/}
-    {/*customer_name = data.get('customer_name')*/}
-    {/*customer_telephone = data.get('customer_telephone')*/}
-    {/*dostavka = data.get('dostavka', False)*/}
-    {/*# TODO: change*/}
-    {/*total_price = data.get('total_price')*/}
-                  <TextField id="tel" error={validation['tel']} sx={{width: "100%", margin: "5px auto"}} label="Номер телефона" variant={"outlined"} value={tel} onChange={e => setTel(e.target.value)}/>
-                  <TextField id="name" error={validation['name']} sx={{width: "100%", margin: "5px auto"}} label="Имя" variant={"outlined"} value={name} onChange={e => setName(e.target.value)}/>
-                  <FormControlLabel control={<Checkbox checked={shippingRequired} onClick={() => setShippingRequired(!shippingRequired)} />} label="Мне нужна доставка" />
-                  <Button className={"accent-button-style"} sx={{width: "100%", margin: "5px auto"}} disabled={!items.length || getCartSum() < minCartPrice || !name || !tel} type="submit">
-                    Отправить
-                  </Button>
-                  <Button className={"accent-button-style"} sx={{width: "100%", margin: "5px auto"}} onClick={saveAsWantedList} disabled={!items.length}>
-                    Скачать (как wanted list)
-                  </Button>
-                  <Button className={"accent-button-style"} sx={{width: "100%", margin: "5px auto"}} onClick={saveAsPdf} disabled={!items.length}>
-                    Скачать (как pdf)
-                  </Button>
-                </Stack>
-              </Box>
+              {loading ?
+                <CircularProgress sx={{color: "#FF1B15"}}/>
+                : dialogStatus === 1 ?
+                  <Box>
+                    {getSvg('success', '')}
+                    <Typography fontSize={20} sx={{marginBottom: "10px"}}>
+                      <strong>
+                        Заказ оформлен
+                      </strong>
+                    </Typography>
+                    <Typography fontSize={18} style={{margin: "10px 0"}}>
+                      Ваш заказ оформлен, мы свяжемся с вами для уточнения деталей.
+                    </Typography>
+                    <button type={"button"} style={{width: "100%"}} className={"filled-normal-button filled-normal-button__secondary"} onClick={() => clearAll()}>
+                      Готово
+                    </button>
+                  </Box>
+                : dialogStatus === 2 ?
+                  <Box>
+                    <Typography fontSize={20}>
+                      <strong>
+                        Произошла ошибка
+                      </strong>
+                    </Typography>
+                    <Typography fontSize={18} style={{margin: "10px 0"}}>
+                      При отправке заказа произошла ошибка, повторите попытку позже. {dialogMessage}
+                    </Typography>
+                    <button type={"button"} style={{width: "100%"}} className={"filled-normal-button filled-normal-button__secondary"} onClick={() => resetDialogStatus()}>
+                      Вернуться к оформлению заказа
+                    </button>
+                  </Box>
+                :
+                <Box component="form" onSubmit={onFormSubmit} sx={{width: "100%", display: "flex"}}>
+                  <Stack sx={{width: "100%"}}>
+                    <Typography fontSize={20} align={"start"} sx={{marginBottom: "10px"}}>
+                      <strong>
+                        Оформление заказа
+                      </strong>
+                    </Typography>
+                    <Stack direction={'row'} sx={{justifyContent: "space-between", borderBottom: "1px solid #CCCCCC", paddingTop: "10px", paddingBottom: "10px"}}>
+                      <Typography fontSize={18}>
+                        Товаров
+                      </Typography>
+                      <Typography fontSize={20}>
+                        <strong>
+                          {getQuantitiesSum()}
+                        </strong>
+                      </Typography>
+                    </Stack>
+                    <Stack direction={'row'} sx={{justifyContent: "space-between", margin: "10px 0"}}>
+                      <Typography fontSize={18}>
+                        Сумма заказа
+                      </Typography>
+                      <Typography fontSize={20}>
+                        <strong>
+                          {getCartSum()}$
+                        </strong>
+                      </Typography>
+                    </Stack>
+                    <div className={"input-holder"} style={{padding: "10px"}}>
+                      <input id="tel" className={"input-style"} placeholder="Номер телефона" value={tel} onChange={e => setTel(e.target.value)}/>
+                    </div>
+                    {validation["tel"] && <span className="error-text">Пример корректного номера: +375291234567</span>}
+                    <div className={"input-holder"} style={{marginTop: "10px", padding: "10px"}}>
+                      <input id="name" className={"input-style"} placeholder="Имя" value={name} onChange={e => setName(e.target.value)}/>
+                    </div>
+                    {validation["name"] && <span className="error-text">Имя может содержать только русские или английские буквы</span>}
+                    <label className="custom-checkbox" style={{margin: "10px 0"}}>
+                      <input type="checkbox" checked={shippingRequired} onClick={() => setShippingRequired(!shippingRequired)}/>
+                      <span className="checkmark"></span>
+                      Нужна доставка
+                    </label>
+                    <button className={"filled-normal-button"} disabled={!items.length || getCartSum() < minCartPrice || !name || !tel} type="submit">
+                      Отправить
+                    </button>
+                    <button type={"button"} className={"filled-normal-button filled-normal-button__secondary"} style={{margin: "10px 0"}} onClick={saveAsWantedList} disabled={!items.length}>
+                      Скачать (как wanted list)
+                    </button>
+                    <button type={"button"} className={"filled-normal-button filled-normal-button__secondary"} onClick={saveAsPdf} disabled={!items.length}>
+                      Скачать (как pdf)
+                    </button>
+                  </Stack>
+                </Box>
+              }
             </Paper>
           </Grid>
         </Grid>
       </Box>
-      <Dialog
-        open={open}
-        onClose={closeDialog}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        {loading ?
-          <>
-            <DialogTitle id="alert-dialog-title">
-              Отправить заказ?
-            </DialogTitle>
-            <DialogContent>
-              <CircularProgress />
-            </DialogContent>
-          </>
-          : dialogStatus === 0 ?
-          <>
-            <DialogTitle id="alert-dialog-title">
-              Отправить заказ?
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                После подтверждения заказ попадёт к администратору, после чего с Вами свяжутся с помощью контактных данных, которые Вы оставили
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={closeDialog}>Нет</Button>
-              <Button onClick={onDialogConfirm} autoFocus>
-                Да
-              </Button>
-            </DialogActions>
-          </>
-          : dialogStatus === 1 ?
-          <>
-            <DialogTitle id="alert-dialog-title">
-              Отправить заказ?
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                Заказ отправлен успешно
-              </DialogContentText>
-            </DialogContent>
-          </>
-          :
-          <>
-            <DialogTitle id="alert-dialog-title">
-              Ошибка
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                При отправке заказа произошла ошибка, повторите попытку позже. {dialogMessage}
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={closeDialog}>Ок</Button>
-            </DialogActions>
-          </>
-        }
-      </Dialog>
     </>
   );
 }

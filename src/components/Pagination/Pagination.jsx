@@ -2,7 +2,7 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 import {Pagination as MuiPagination} from '@mui/material';
 import {Button} from "@mui/material";
-import {Link, MemoryRouter, Route, Routes, useLocation} from 'react-router-dom';
+import {Link, MemoryRouter, Route, Routes, useLocation, useNavigate} from 'react-router-dom';
 import PaginationItem from '@mui/material/PaginationItem';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -13,6 +13,7 @@ import {useEffect, useState} from "react";
 
 export default function Pagination({urlBase, itemsLen, amountOfPages = 0, productsOnPage, setProductsOnPage}) {
   // pagination
+  const navigate = useNavigate();
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const page = parseInt(query.get('page') || '1', 10);
@@ -26,20 +27,36 @@ export default function Pagination({urlBase, itemsLen, amountOfPages = 0, produc
   }, [productsOnPage, itemsLen, amountOfPages])
   // end pagination
 
-  return (itemsLen || amountOfPages ?
+  return (itemsLen > productsOnPage || amountOfPages ?
     <Stack direction="row" justifyContent="space-between" alignItems="center">
       <MuiPagination
         page={page}
         count={pagesCount}
         shape="rounded"
-        renderItem={(item) => (
-          <PaginationItem
-            component={Link}
-            // TODO: move to constants
-            to={`/${urlBase}/${item.page === 1 ? '' : `?page=${item.page}`}`}
-            {...item}
-          />
-        )}
+        renderItem={(item) => {
+          if (item.type === "start-ellipsis" || item.type === "end-ellipsis") {
+            return <span key={item.type + item.page}>…</span>;
+          }
+
+          let label = item.page; // по умолчанию номер страницы
+          if (item.type === "previous") label = "<";
+          if (item.type === "next") label = ">";
+          if (item.type === "first") label = "«";
+          if (item.type === "last") label = "»";
+
+          return <button
+            className="pagination-button"
+            onClick={() => navigate(`/${urlBase}/${item.page === 1 ? '' : `?page=${item.page}`}`)}
+            key={item.page}
+            disabled={item.disabled}
+            style={{
+              backgroundColor: item.selected ? "#FF1B15" : "",
+              color: item.selected ? "white" : ""
+            }}
+          >
+            {label}
+          </button>
+        }}
       />
       {/*<Stack direction="row" alignItems="center" spacing={2}>*/}
       {/*  <p>На странице</p>*/}
