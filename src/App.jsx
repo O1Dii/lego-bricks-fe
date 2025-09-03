@@ -19,8 +19,8 @@ const theme = createTheme({
   },
 });
 
-const USERNAME = "lego_bricks_test";
-const PASSWORD = "very_secure_lego_bricks_password";
+const USERNAME = "lego";
+const PASSWORD = "lego";
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState("");

@@ -139,14 +139,14 @@ export default function Conditions() {
           <Box sx={{ mb: 2 }}>
             <Typography variant="body1" sx={{ color: '#555', lineHeight: 1.6, display: 'flex', alignItems: 'center' }}>
               <RussiaFlag />
-              <strong>Россия:</strong> Сбербанк, наличные, оплата через Avito (если доставка avito).
+              <strong style={{marginRight: "8px"}}>Россия:</strong>Сбербанк, наличные, оплата через Avito (если доставка avito).
             </Typography>
           </Box>
 
           <Box sx={{ mb: 3 }}>
             <Typography variant="body1" sx={{ color: '#555', lineHeight: 1.6, display: 'flex', alignItems: 'center' }}>
               <img style={{height: "25px", width: "25px", marginRight: "8px"}} src={belarusFlag} alt="belarus" />
-              <strong>Беларусь:</strong> наличные, наложенный платеж (Европочта/Почта РБ).
+              <strong style={{marginRight: "8px"}}>Беларусь:</strong>наличные, наложенный платеж (Европочта/Почта РБ).
             </Typography>
           </Box>
 
@@ -158,14 +158,14 @@ export default function Conditions() {
           <Box sx={{ mb: 2 }}>
             <Typography variant="body1" sx={{ color: '#555', lineHeight: 1.6, display: 'flex', alignItems: 'center' }}>
               <RussiaFlag />
-              <strong>Россия:</strong> только через Avito (выбирайте удобный вариант).
+              <strong style={{marginRight: "8px"}}>Россия:</strong>только через Avito (выбирайте удобный вариант).
             </Typography>
           </Box>
 
           <Box sx={{ mb: 3 }}>
             <Typography variant="body1" sx={{ color: '#555', lineHeight: 1.6, display: 'flex', alignItems: 'center' }}>
               <img style={{height: "25px", width: "25px", marginRight: "8px"}} src={belarusFlag} alt="belarus" />
-              <strong>Беларусь:</strong> Почта РБ, Европочта.
+              <strong style={{marginRight: "8px"}}>Беларусь:</strong>Почта РБ, Европочта.
             </Typography>
           </Box>
 

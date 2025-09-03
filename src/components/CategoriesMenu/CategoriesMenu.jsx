@@ -10,7 +10,11 @@ function CategoriesMenu({ categories, setSelectedCategory, selectedCategory }) {
 
   useEffect(() => {
     if (selectedCategory) {
-      setPath(selectedCategory.split(' / ').slice(0, -1))
+      if (selectedCategory === 'Parts') {
+        setPath(['Parts'])
+      } else {
+        setPath(selectedCategory.split(' / ').slice(0, -1))
+      }
     }
   }, [selectedCategory])
 
