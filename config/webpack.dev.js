@@ -6,7 +6,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 
 const getClientEnvironment = require('./env');
-const env = getClientEnvironment("http://localhost:5000");
+const env = getClientEnvironment("http://localhost:5050");
 
 module.exports = merge(common, {
     output: {
