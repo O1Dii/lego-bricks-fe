@@ -114,7 +114,7 @@ export default function Navigation({children}) {
             <Stack direction={"row"} sx={{alignItems: "center"}}>
               <div style={{marginRight: "8px", marginTop: "10px"}}>{getSvg('mail')}</div>
               <Typography variant="body1">
-                Почта: <a href="mailto:legobricks2025@gmail.com" style={{ textDecoration: 'none', color: '#0088cc' }}>
+                <a href="mailto:legobricks2025@gmail.com" style={{ textDecoration: 'none', color: '#0088cc' }}>
                   legobricks2025@gmail.com
                 </a>
               </Typography>

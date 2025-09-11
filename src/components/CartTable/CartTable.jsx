@@ -58,7 +58,15 @@ export default function CartTable({items, loading}) {
             {/*  <Checkbox />*/}
             {/*</Grid>*/}
             <Grid sx={{display: "flex", alignItems: "center", justifyContent: {xs: "center"}}} xs={6} md={2}>
-              <Box component="img" sx={{height: 90, objectFit: "contain", borderRadius: "10px", width: "80%"}} src={product.url} alt={""} />
+              <Box
+                component="img"
+                sx={{height: 90, objectFit: "contain", borderRadius: "10px", width: "80%"}}
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = "https://storage.googleapis.com/lego-bricks-app-frontend/default.jpg";
+                }}
+                src={product.url}
+                alt={""} />
             </Grid>
             <Grid xs={6} md={1}>
               {product.item_no}

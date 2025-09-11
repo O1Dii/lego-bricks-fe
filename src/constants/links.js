@@ -1,5 +1,5 @@
-// export const API_ROOT = 'http://localhost:8080/'
-export const API_ROOT = 'https://lego-bricks-343194171424.europe-north1.run.app/'
+export const API_ROOT = 'http://localhost:8080/'
+// export const API_ROOT = 'https://lego-bricks-343194171424.europe-north1.run.app/'
 export const API_BASE = () => `${API_ROOT}`
 
 export const ITEMS_GET = (search, page, category) => `${API_BASE()}catalog?page=${page}${search !== '' ? '&search=' + search : ''}${category !== '' ? '&category=' + category : ''}`;
