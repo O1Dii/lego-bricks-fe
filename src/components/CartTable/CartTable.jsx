@@ -68,7 +68,7 @@ export default function CartTable({items, loading}) {
                 src={product.url}
                 alt={""} />
             </Grid>
-            <Grid xs={6} md={1}>
+            <Grid xs={6} md={2} sx={{wordBreak: "break-all"}}>
               {product.item_no}
             </Grid>
             <Grid xs={6} md={1}>
@@ -77,7 +77,7 @@ export default function CartTable({items, loading}) {
             <Grid xs={6} md={3}>
               {product.description}
             </Grid>
-            <Grid xs={12} md={5}>
+            <Grid xs={12} md={4}>
               <Stack direction={"row"} sx={{justifyContent: "space-between"}}>
                 <Stack>
                   <Typography fontSize={20}>
@@ -146,7 +146,7 @@ export default function CartTable({items, loading}) {
                 Фото
               </Typography>
             </Grid>
-            <Grid xs={1}>
+            <Grid xs={2}>
               <Typography fontSize={14} color={"#00000080"}>
                 Номер детали
               </Typography>
@@ -161,7 +161,7 @@ export default function CartTable({items, loading}) {
                 Описание
               </Typography>
             </Grid>
-            <Grid xs={5}>
+            <Grid xs={4}>
               <Typography fontSize={14} color={"#00000080"}>
                 Цена
               </Typography>

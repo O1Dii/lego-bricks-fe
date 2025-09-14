@@ -71,7 +71,7 @@ export default function Catalog() {
   const onSearchClick = (e) => {
     e.preventDefault();
     console.log('search click')
-    loadItems(searchValue, page, selectedCategory);
+    loadItems(searchValue, 1, selectedCategory);
     loadCategories();
   }
 
@@ -112,9 +112,16 @@ export default function Catalog() {
 
   useEffect(() => {
     console.log('use effect')
+    loadItems('', 1, selectedCategory);
+    setSearchValue('');
+    loadCategories();
+  }, [selectedCategory])
+
+  useEffect(() => {
+    console.log('use effect')
     loadItems(searchValue, page, selectedCategory);
     loadCategories();
-  }, [page, selectedCategory])
+  }, [page])
 
   return (
     <>
