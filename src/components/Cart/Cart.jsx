@@ -47,7 +47,13 @@ export default function Cart() {
     setLoading(true);
     axios
       .post(ORDERS_POST_ORDER(), {
-        items: items.map(item => ({id: item.id, quantity: item.quantityInCart})),
+        items: items.map(item => ({
+          id: item.id,
+          quantity: item.quantityInCart,
+          description: item.description,
+          lot_id: item.lot_id,
+          item_no: item.item_no
+        })),
         customer_telephone: tel,
         customer_name: name,
         dostavka: shippingRequired
@@ -76,7 +82,13 @@ export default function Cart() {
   const saveAsWantedList = () => {
     setLoading(true);
     axios
-      .post(WANTED_LIST_SAVE(), {items: items.map(item => ({id: item.id, quantity: item.quantityInCart}))}, {
+      .post(WANTED_LIST_SAVE(), {items: items.map(item => ({
+          id: item.id,
+          quantity: item.quantityInCart,
+          description: item.description,
+          lot_id: item.lot_id,
+          item_no: item.item_no
+        }))}, {
         responseType: 'blob'
       })
       .then(response => {
@@ -99,7 +111,13 @@ export default function Cart() {
   const saveAsPdf = () => {
     setLoading(true);
     axios
-      .post(CART_PDF_SAVE(), {items: items.map(item => ({id: item.id, quantity: item.quantityInCart}))}, {
+      .post(CART_PDF_SAVE(), {items: items.map(item => ({
+          id: item.id,
+          quantity: item.quantityInCart,
+          description: item.description,
+          lot_id: item.lot_id,
+          item_no: item.item_no
+        }))}, {
         responseType: 'blob'
       })
       .then(response => {
