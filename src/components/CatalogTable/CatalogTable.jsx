@@ -105,7 +105,16 @@ export default function CatalogTable({items, notFoundItems}) {
               {product.color}
             </Grid>
             <Grid xs={6} md={3}>
-              {product.description}
+              {product.description.split('.').map((part, index, arr) => (
+                <span key={index}>
+                  {part}
+                  {index < arr.length - 1 && (
+                    <>
+                      .<br />
+                    </>
+                  )}
+                </span>
+              ))}
             </Grid>
             <Grid xs={12} md={4}>
               <Stack direction={"row"} sx={{justifyContent: "space-between"}}>

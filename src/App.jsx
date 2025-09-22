@@ -12,6 +12,7 @@ import Cart from "./components/Cart/Cart";
 import Conditions from "./components/Conditions/Conditions";
 import Typography from "@mui/material/Typography";
 import {createTheme} from "@mui/material";
+import ScrollToTop from "./components/ScrollToTop/ScrollToTop";
 
 const theme = createTheme({
   typography: {
@@ -120,6 +121,7 @@ function App() {
 
           {/*<MuiThemeProvider theme={theme}>*/}
           <Router>
+            <ScrollToTop />
             <Routes>
                 <Route element={<MainLayout />}>
                   <Route exact path="/" element={<Navigate to="/catalog" replace/>}/>
