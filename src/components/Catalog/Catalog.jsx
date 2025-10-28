@@ -9,7 +9,7 @@ import {
   ListItemIcon,
   ListItemText,
   Snackbar,
-  Tooltip
+  Tooltip, useMediaQuery
 } from "@mui/material";
 import Skeleton from "@mui/material/Skeleton";
 import CatalogTable from "../CatalogTable/CatalogTable";
@@ -51,12 +51,16 @@ export default function Catalog() {
   const [categoryOpen, setCategoryOpen] = useState(['Parts']);
   const [selectedCategory, setSelectedCategory] = useState('Parts');
 
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
   const [failureSnackbarOpen, setFailureSnackbarOpen] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const page = parseInt(query.get('page') || '1', 10);
+  const isMobile = useMediaQuery('(max-width:700px)');
 
   const toggleCategory = (currentCategory) => {
     setCategoryOpen((prevOpen) => {
@@ -73,6 +77,7 @@ export default function Catalog() {
     console.log('search click')
     loadItems(searchValue, 1, selectedCategory);
     loadCategories();
+    setShowMenu(false);
   }
 
   const onFileUpload = async (event) => {
@@ -113,6 +118,7 @@ export default function Catalog() {
   useEffect(() => {
     console.log('use effect')
     loadItems('', 1, selectedCategory);
+    setShowMenu(false);
     setSearchValue('');
     loadCategories();
   }, [selectedCategory])
@@ -125,7 +131,7 @@ export default function Catalog() {
 
   return (
     <>
-      <Navigation />
+      <Navigation onMobileCatalogClick={() => setShowMenu(!showMenu)} drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen}/>
       <Snackbar
         open={successSnackbarOpen}
         autoHideDuration={5000}
@@ -156,71 +162,185 @@ export default function Catalog() {
       </Snackbar>
       <Box className={"main-page-content"}>
         <Grid container spacing={0}>
-          <Grid item xs={3}>
-            <Paper sx={{
-              backgroundColor: "#ECECEC",
-              width: "100%",
-              borderRadius: "0",
-              height: "100%",
-              minHeight: "95vh",
-              padding: "20px"
-            }}>
-              <Stack>
-                <div>
-                  <CatalogSearch value={searchValue} setValue={setSearchValue} onSearchClick={onSearchClick}/>
-                </div>
-                <Tooltip title="Загрузите Wanted list с BL — система автоматически найдёт все доступные детали из вашего списка">
-                  <label
-                    className={"accent-button-style"}
-                    style={{height: "auto", margin: "10px 0 20px 0", cursor: "pointer"}}
-                  >
-                    <Stack direction={"row"} sx={{alignItems: "center", marginRight: "auto"}}>
-                      <div style={{marginRight: "10px"}}>
-                        {getSvg('upload', 'black')}
-                      </div>
-                      <Stack>
-                        <Typography fontSize={15} align={"left"}>Загрузить Wanted list</Typography>
-                        <Typography className={"grey-text"} fontSize={14} align={"left"}>Загрузите текстовый файл весом до 5Мб</Typography>
-                      </Stack>
-                    </Stack>
-                    <VisuallyHiddenInput
-                      type="file"
-                      onChange={onFileUpload}
-                      multiple
+          {/* ПК версия */}
+          {!isMobile && (
+            <>
+              <Grid item xs={3}>
+                <Paper
+                  sx={{
+                    backgroundColor: "#ECECEC",
+                    width: "100%",
+                    borderRadius: 0,
+                    height: "100%",
+                    minHeight: "calc(100vh - 120px)",
+                    padding: "20px",
+                  }}
+                >
+                  <Stack>
+                    <div>
+                      <CatalogSearch
+                        value={searchValue}
+                        setValue={setSearchValue}
+                        onSearchClick={onSearchClick}
+                      />
+                    </div>
+                    <Tooltip title="Загрузите Wanted list с BL — система автоматически найдёт все доступные детали из вашего списка">
+                      <label
+                        className="accent-button-style"
+                        style={{
+                          height: "auto",
+                          margin: "10px 0 20px 0",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <Stack direction="row" sx={{ alignItems: "center", marginRight: "auto" }}>
+                          <div style={{ marginRight: "10px" }}>
+                            {getSvg("upload", "black")}
+                          </div>
+                          <Stack>
+                            <Typography fontSize={15} align="left">
+                              Загрузить Wanted list
+                            </Typography>
+                            <Typography className="grey-text" fontSize={14} align="left">
+                              Загрузите текстовый файл весом до 5Мб
+                            </Typography>
+                          </Stack>
+                        </Stack>
+                        <VisuallyHiddenInput type="file" onChange={onFileUpload} multiple />
+                      </label>
+                    </Tooltip>
+                  </Stack>
+                  <Divider
+                    sx={{
+                      width: "120%",
+                      borderColor: "white",
+                      position: "relative",
+                      left: "-20px",
+                    }}
+                  />
+                  <Typography align="left" fontSize={18} sx={{ marginTop: "10px" }}>
+                    <strong>Каталог деталей</strong>
+                  </Typography>
+                  {categoriesLoading ? (
+                    <>
+                      <Skeleton variant="rounded" />
+                      <Skeleton variant="rounded" />
+                      <Skeleton variant="rounded" />
+                    </>
+                  ) : (
+                    <CategoriesMenu
+                      categories={categories}
+                      selectedCategory={selectedCategory}
+                      setSelectedCategory={setSelectedCategory}
                     />
-                  </label>
-                </Tooltip>
-              </Stack>
-              <Divider sx={{width: "120%", borderColor: "white", position: "relative", left: "-20px"}}/>
-              <Typography align="left" fontSize={18} sx={{marginTop: "10px"}}>
-                <strong>
-                  Каталог деталей
-                </strong>
-              </Typography>
-              {categoriesLoading ?
-                <>
-                  <Skeleton variant="rounded" />
-                  <Skeleton variant="rounded" />
-                  <Skeleton variant="rounded" />
-                </>
-                : <CategoriesMenu categories={categories} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />}
-            </Paper>
-          </Grid>
-          <Grid item xs={9} sx={{padding: "20px"}}>
-            <Typography align="left" fontSize={28}>
-              <strong>
-                Каталог деталей{!items['not_found_items'] ? '' : ' (из загруженного Wanted List)'}
-              </strong>
-            </Typography>
-            {loading ?
-              <>
-                <Skeleton variant="rounded" height={90} style={{marginTop: 20 }} />
-                <Skeleton variant="rounded" height={90} style={{marginTop: 20 }} />
-                <Skeleton variant="rounded" height={90} style={{marginTop: 20 }} />
-              </> :
-              <CatalogTable items={items['items'] || []} notFoundItems={items['not_found_items']}/>
-            }
-          </Grid>
+                  )}
+                </Paper>
+              </Grid>
+              <Grid item xs={9} sx={{ padding: "20px" }}>
+                <Typography align="left" fontSize={28}>
+                  <strong>
+                    Каталог деталей
+                    {!items["not_found_items"] ? "" : " (из загруженного Wanted List)"}
+                  </strong>
+                </Typography>
+                {loading ? (
+                  <>
+                    <Skeleton variant="rounded" height={90} sx={{ mt: 2 }} />
+                    <Skeleton variant="rounded" height={90} sx={{ mt: 2 }} />
+                    <Skeleton variant="rounded" height={90} sx={{ mt: 2 }} />
+                  </>
+                ) : (
+                  <CatalogTable
+                    items={items["items"] || []}
+                    notFoundItems={items["not_found_items"]}
+                  />
+                )}
+              </Grid>
+            </>
+          )}
+
+          {/* Мобильная версия */}
+          {isMobile && (
+            <Grid item xs={12}>
+              {showMenu ? (
+                <Paper
+                  sx={{
+                    backgroundColor: "#ECECEC",
+                    borderRadius: 0,
+                    minHeight: "calc(100vh - 120px)",
+                    padding: "20px",
+                  }}
+                >
+                  <CatalogSearch
+                    value={searchValue}
+                    setValue={setSearchValue}
+                    onSearchClick={onSearchClick}
+                  />
+                  <Tooltip title="Загрузите Wanted list с BL — система автоматически найдёт все доступные детали из вашего списка">
+                    <label
+                      className="accent-button-style"
+                      style={{
+                        height: "auto",
+                        margin: "10px 0 20px 0",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <Stack direction="row" sx={{ alignItems: "center", marginRight: "auto" }}>
+                        <div style={{ marginRight: "10px" }}>{getSvg("upload", "black")}</div>
+                        <Stack>
+                          <Typography fontSize={15} align="left">
+                            Загрузить Wanted list
+                          </Typography>
+                          <Typography className="grey-text" fontSize={14} align="left">
+                            Загрузите текстовый файл весом до 5Мб
+                          </Typography>
+                        </Stack>
+                      </Stack>
+                      <VisuallyHiddenInput type="file" onChange={onFileUpload} multiple />
+                    </label>
+                  </Tooltip>
+
+                  <Divider sx={{ borderColor: "white", my: 2 }} />
+
+                  {categoriesLoading ? (
+                    <>
+                      <Skeleton variant="rounded" />
+                      <Skeleton variant="rounded" />
+                      <Skeleton variant="rounded" />
+                    </>
+                  ) : (
+                    <CategoriesMenu
+                      categories={categories}
+                      selectedCategory={selectedCategory}
+                      setSelectedCategory={setSelectedCategory}
+                    />
+                  )}
+                </Paper>
+              ) : drawerOpen ? <></> : (
+                <Stack sx={{ padding: "20px", backgroundColor: "#ECECEC", minHeight: "calc(100vh - 120px)" }}>
+                  <Typography align="left" fontSize={22} sx={{ mb: 2 }}>
+                    <strong>
+                      {selectedCategory || "Каталог деталей"}
+                      {!items["not_found_items"] ? "" : " (из загруженного Wanted List)"}
+                    </strong>
+                  </Typography>
+
+                  {loading ? (
+                    <>
+                      <Skeleton variant="rounded" height={90} sx={{ mt: 2 }} />
+                      <Skeleton variant="rounded" height={90} sx={{ mt: 2 }} />
+                      <Skeleton variant="rounded" height={90} sx={{ mt: 2 }} />
+                    </>
+                  ) : (
+                    <CatalogTable
+                      items={items["items"] || []}
+                      notFoundItems={items["not_found_items"]}
+                    />
+                  )}
+                </Stack>
+              )}
+            </Grid>
+          )}
         </Grid>
       </Box>
     </>

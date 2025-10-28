@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
-import {Button} from "@mui/material";
+import {Button, useMediaQuery} from "@mui/material";
 import {Link, MemoryRouter, Route, Routes, useLocation} from 'react-router-dom';
 import PaginationItem from '@mui/material/PaginationItem';
 import MenuItem from '@mui/material/MenuItem';
@@ -16,6 +16,7 @@ import Checkbox from '@mui/material/Checkbox';
 import {CartContext} from "../../context/CartContext";
 import TextField from "@mui/material/TextField";
 import {SettingsContext} from "../../context/SettingsContext";
+import decodeHtml from "../../utils/decodeHtml";
 
 export default function CartTable({items, loading}) {
   const [perPage, setPerPage] = useState(20);
@@ -25,6 +26,7 @@ export default function CartTable({items, loading}) {
   const {rub, byn, minCartPrice} = useContext(SettingsContext);
 
   const [data, setData] = useState([]);
+  const isMobile = useMediaQuery('(max-width:700px)');
 
   const handleCounterChange = (item, max) => (unprocessedValue) => {
     console.log(item, unprocessedValue);
@@ -43,94 +45,214 @@ export default function CartTable({items, loading}) {
   };
 
   useEffect(() => {
-    const currentData = items.map((product, index) => {
-      return (
-        <Paper sx={{
-          width: {xs: "auto"},
-          height: {xs: "auto"},
-          padding: {xs: "5px", md: 0},
-          margin: {xs: "10px auto", md: 0},
-          // backgroundColor: (index % 2 === 1) ? "" : "#f2f2f2",
-          boxShadow: { md: "none", xs: "0px 4px 5px -2px rgba(0,0,0,0.2),0px 7px 10px 1px rgba(0,0,0,0.14),0px 2px 16px 1px rgba(0,0,0,0.12)" }
-        }}>
-          <Grid container alignItems="center" spacing={2} sx={{marginTop: {xs: "15px", md: 'auto'}, marginBottom: "10px", textAlign: "left", borderBottom: "1px solid #D7D7D7"}}>
-            {/*<Grid xs={1} md={1}>*/}
-            {/*  <Checkbox />*/}
-            {/*</Grid>*/}
-            <Grid sx={{display: "flex", alignItems: "center", justifyContent: {xs: "center"}}} xs={6} md={2}>
-              <Box
-                component="img"
-                sx={{height: 90, objectFit: "contain", borderRadius: "10px", width: "80%"}}
-                onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = "https://storage.googleapis.com/lego-bricks-app-frontend/default.jpg";
-                }}
-                src={product.url}
-                alt={""} />
-            </Grid>
-            <Grid xs={6} md={2} sx={{wordBreak: "break-all"}}>
-              {product.item_no}
-            </Grid>
-            <Grid xs={6} md={1}>
-              {product.color}
-            </Grid>
-            <Grid xs={6} md={3}>
-              {product.description.split('.').map((part, index, arr) => (
-                <span key={index}>
-                  {part}
-                  {index < arr.length - 1 && (
-                    <>
-                      .<br />
-                    </>
-                  )}
-                </span>
-              ))}
-            </Grid>
-            <Grid xs={12} md={4}>
-              <Stack direction={"row"} sx={{justifyContent: "space-between"}}>
-                <Stack>
-                  <Typography fontSize={20}>
-                    <strong>{product.price}$</strong>
+    let currentData = null;
+    if (isMobile) {
+      currentData = items.map((product, index) => (
+        <Grid item xs={6} key={product.id} sx={{display: "flex"}}>
+          <Paper sx={{
+            width: "auto",
+            height: "100%",
+            boxShadow: "none",
+            borderRadius: 0,
+            padding: "10px",
+            flex: 1
+          }}>
+            <Grid container alignItems="center" spacing={1} sx={{
+              textAlign: "left",
+              justifyContent: "space-between",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              margin: 0,
+              height: "100%"
+            }}>
+              <Box>
+                <Grid sx={{display: "flex", alignItems: "center", justifyContent: "center"}} xs={12}>
+                  <Box
+                    component="img"
+                    sx={{height: 90, objectFit: "contain", borderRadius: "10px", width: "80%"}}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "https://storage.googleapis.com/lego-bricks-app-frontend/default.jpg";
+                    }}
+                    src={product.url}
+                    alt={""}/>
+                </Grid>
+                <Grid xs={12} sx={{marginBottom: "auto"}}>
+                  {decodeHtml(product.description).split('.').map((part, index, arr) => (
+                    <span key={index}>
+                      {part}
+                      {index < arr.length - 1 && (
+                        <>
+                          .<br/>
+                        </>
+                      )}
+                    </span>
+                  ))}
+                </Grid>
+              </Box>
+              <Box sx={{width: "100%"}}>
+                <Grid xs={12}>
+                  <Typography fontSize={12}>
+                    <Stack direction={"row"} sx={{alignItems: "center"}}>
+                      <div style={{backgroundColor: "#04BA2E", height: "10px", width: "10px", marginRight: "10px"}}/>
+                      В наличии {product.quantity} шт.
+                    </Stack>
                   </Typography>
-                  <Typography fontSize={14} color={"#00000080"}>
-                    (~{
+                </Grid>
+                <Grid xs={12} sx={{wordBreak: "break-all", width: "100%", paddingBottom: 0}}>
+                  <Typography fontSize={12} sx={{display: "flex", justifyContent: "space-between"}}>
+                    <span style={{color: "#00000080", wordBreak: "break-word"}}>Номер детали</span><span>{product.item_no}</span>
+                  </Typography>
+                </Grid>
+                <Grid xs={12} sx={{justifyContent: "space-between", width: "100%", paddingTop: 0}}>
+                  <Typography fontSize={12} sx={{display: "flex", justifyContent: "space-between"}}>
+                    <span style={{color: "#00000080", wordBreak: "break-word"}}>Цвет</span><span>{product.color}</span>
+                  </Typography>
+                </Grid>
+                <Grid xs={12}>
+                  <Stack>
+                    <Typography fontSize={16}>
+                      <strong>{product.price}$</strong>
+                    </Typography>
+                    <Typography fontSize={12} color={"#00000080"}>
+                      (~{
                       Math.round((parseFloat(product.price) * rub + Number.EPSILON) * 100) / 100
                     } RUB, {
                       Math.round((parseFloat(product.price) * byn + Number.EPSILON) * 100) / 100
                     } BYN)
-                  </Typography>
-                  <Typography fontSize={14}>
-                    <Stack direction={"row"} sx={{alignItems: "center"}}>
-                      <div style={{backgroundColor: "#04BA2E", height: "10px", width: "10px", marginRight: "10px"}}/>В наличии {product.quantity} шт.
-                    </Stack>
-                  </Typography>
-                </Stack>
-                <Stack direction={"row"} sx={{alignItems: "center", border: "1px solid #D7D7D7", margin: "auto 0"}}>
-                  <button
-                    className="quantity-button"
-                    style={{backgroundColor: getQuantityOfItemInCart(product.id) ? "#FF1B15" : ""}}
-                    onClick={() => handleCounterChange(product, product.quantity)((getQuantityOfItemInCart(product.id) || 0) - 1)}
-                  >-</button>
-                  <input
-                    type="number"
-                    className="plain-number"
-                    min={0}
-                    max={product.quantity}
-                    value={getQuantityOfItemInCart(product.id)}
-                    onChange={(e) => handleCounterChange(product, product.quantity)(e.target.value)}
-                  />
-                  <button
-                    className="quantity-button"
-                    style={{backgroundColor: getQuantityOfItemInCart(product.id) ? "#FF1B15" : ""}}
-                    onClick={() => handleCounterChange(product, product.quantity)((getQuantityOfItemInCart(product.id) || 0) + 1)}
-                  >+</button>
-                </Stack>
-              </Stack>
+                    </Typography>
+                  </Stack>
+                </Grid>
+                <Grid xs={12}>
+                  <Stack direction={"row"} sx={{alignItems: "center", justifyContent: "space-evenly", border: "1px solid #D7D7D7", padding: "5px", margin: "auto 0", width: "100%"}}>
+                    <button
+                      className="quantity-button"
+                      style={{backgroundColor: getQuantityOfItemInCart(product.id) ? "#FF1B15" : ""}}
+                      onClick={() => handleCounterChange(product, product.quantity)((getQuantityOfItemInCart(product.id) || 0) - 1)}
+                    >-
+                    </button>
+                    <input
+                      type="number"
+                      className="plain-number"
+                      min={0}
+                      max={product.quantity}
+                      value={getQuantityOfItemInCart(product.id)}
+                      onChange={(e) => handleCounterChange(product, product.quantity)(e.target.value)}
+                    />
+                    <button
+                      className="quantity-button"
+                      style={{backgroundColor: getQuantityOfItemInCart(product.id) ? "#FF1B15" : ""}}
+                      onClick={() => handleCounterChange(product, product.quantity)((getQuantityOfItemInCart(product.id) || 0) + 1)}
+                    >+
+                    </button>
+                  </Stack>
+                </Grid>
+              </Box>
             </Grid>
-          </Grid>
-        </Paper>
-      )
-    })
+          </Paper>
+        </Grid>
+      ))
+    } else {
+      currentData = items.map((product, index) => {
+        return (
+          <Paper sx={{
+            width: {xs: "auto"},
+            height: {xs: "auto"},
+            padding: {xs: "5px", md: 0},
+            margin: {xs: "10px auto", md: 0},
+            // backgroundColor: (index % 2 === 1) ? "" : "#f2f2f2",
+            boxShadow: {
+              md: "none",
+              xs: "0px 4px 5px -2px rgba(0,0,0,0.2),0px 7px 10px 1px rgba(0,0,0,0.14),0px 2px 16px 1px rgba(0,0,0,0.12)"
+            }
+          }}>
+            <Grid container alignItems="center" spacing={2} sx={{
+              marginTop: {xs: "15px", md: 'auto'},
+              marginBottom: "10px",
+              textAlign: "left",
+              borderBottom: "1px solid #D7D7D7"
+            }}>
+              {/*<Grid xs={1} md={1}>*/}
+              {/*  <Checkbox />*/}
+              {/*</Grid>*/}
+              <Grid sx={{display: "flex", alignItems: "center", justifyContent: {xs: "center"}}} xs={6} md={2}>
+                <Box
+                  component="img"
+                  sx={{height: 90, objectFit: "contain", borderRadius: "10px", width: "80%"}}
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = "https://storage.googleapis.com/lego-bricks-app-frontend/default.jpg";
+                  }}
+                  src={product.url}
+                  alt={""}/>
+              </Grid>
+              <Grid xs={6} md={2} sx={{wordBreak: "break-all"}}>
+                {product.item_no}
+              </Grid>
+              <Grid xs={6} md={1}>
+                {product.color}
+              </Grid>
+              <Grid xs={6} md={3}>
+                {decodeHtml(product.description).split('.').map((part, index, arr) => (
+                  <span key={index}>
+                    {part}
+                    {index < arr.length - 1 && (
+                      <>
+                        .<br/>
+                      </>
+                    )}
+                  </span>
+                ))}
+              </Grid>
+              <Grid xs={12} md={4}>
+                <Stack direction={"row"} sx={{justifyContent: "space-between"}}>
+                  <Stack>
+                    <Typography fontSize={20}>
+                      <strong>{product.price}$</strong>
+                    </Typography>
+                    <Typography fontSize={14} color={"#00000080"}>
+                      (~{
+                      Math.round((parseFloat(product.price) * rub + Number.EPSILON) * 100) / 100
+                    } RUB, {
+                      Math.round((parseFloat(product.price) * byn + Number.EPSILON) * 100) / 100
+                    } BYN)
+                    </Typography>
+                    <Typography fontSize={14}>
+                      <Stack direction={"row"} sx={{alignItems: "center"}}>
+                        <div style={{backgroundColor: "#04BA2E", height: "10px", width: "10px", marginRight: "10px"}}/>
+                        В наличии {product.quantity} шт.
+                      </Stack>
+                    </Typography>
+                  </Stack>
+                  <Stack direction={"row"} sx={{alignItems: "center", border: "1px solid #D7D7D7", margin: "auto 0"}}>
+                    <button
+                      className="quantity-button"
+                      style={{backgroundColor: getQuantityOfItemInCart(product.id) ? "#FF1B15" : ""}}
+                      onClick={() => handleCounterChange(product, product.quantity)((getQuantityOfItemInCart(product.id) || 0) - 1)}
+                    >-
+                    </button>
+                    <input
+                      type="number"
+                      className="plain-number"
+                      min={0}
+                      max={product.quantity}
+                      value={getQuantityOfItemInCart(product.id)}
+                      onChange={(e) => handleCounterChange(product, product.quantity)(e.target.value)}
+                    />
+                    <button
+                      className="quantity-button"
+                      style={{backgroundColor: getQuantityOfItemInCart(product.id) ? "#FF1B15" : ""}}
+                      onClick={() => handleCounterChange(product, product.quantity)((getQuantityOfItemInCart(product.id) || 0) + 1)}
+                    >+
+                    </button>
+                  </Stack>
+                </Stack>
+              </Grid>
+            </Grid>
+          </Paper>
+        )
+      })
+    }
 
     if(currentData && currentData.length) {
       setData(currentData);

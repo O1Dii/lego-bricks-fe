@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
-import {Button} from "@mui/material";
+import {Button, useMediaQuery} from "@mui/material";
 import {Link, MemoryRouter, Route, Routes, useLocation} from 'react-router-dom';
 import PaginationItem from '@mui/material/PaginationItem';
 import MenuItem from '@mui/material/MenuItem';
@@ -16,6 +16,7 @@ import {CartContext} from "../../context/CartContext";
 import {ItemsContext} from "../../context/ItemsContext";
 import TextField from "@mui/material/TextField";
 import {SettingsContext} from "../../context/SettingsContext";
+import decodeHtml from "../../utils/decodeHtml";
 
 export default function CatalogTable({items, notFoundItems}) {
   const {perPage, setPerPage, pages} = useContext(ItemsContext);
@@ -26,6 +27,8 @@ export default function CatalogTable({items, notFoundItems}) {
 
   const [data, setData] = useState([]);
   const [counters, setCounters] = useState({});
+
+  const isMobile = useMediaQuery('(max-width:700px)');
 
   useEffect(() => {
     if (!items || !cartItems) return;
@@ -73,8 +76,113 @@ export default function CatalogTable({items, notFoundItems}) {
   // }
 
   useEffect(() => {
-    const currentData = items.map((product, index) => {
-      return (
+    let currentData = null;
+    if (isMobile) {
+      currentData = items.map((product) => (
+        <Grid item xs={6} key={product.id} sx={{display: "flex"}}>
+          <Paper sx={{
+            width: "auto",
+            height: "100%",
+            boxShadow: "none",
+            borderRadius: 0,
+            padding: "10px",
+            flex: 1
+          }}>
+            <Grid container alignItems="center" spacing={1} sx={{
+              textAlign: "left",
+              justifyContent: "space-between",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              margin: 0,
+              height: "100%"
+            }}>
+              <Box>
+                <Grid sx={{display: "flex", alignItems: "center", justifyContent: "center"}} xs={12}>
+                  <Box
+                    component="img"
+                    sx={{height: 90, objectFit: "contain", borderRadius: "10px", width: "80%"}}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "https://storage.googleapis.com/lego-bricks-app-frontend/default.jpg";
+                    }}
+                    src={product.url}
+                    alt={""} />
+                </Grid>
+                <Grid xs={12} sx={{marginBottom: "auto"}}>
+                  {decodeHtml(product.description).split('.').map((part, index, arr) => (
+                    <span key={index}>
+                      {part}
+                      {index < arr.length - 1 && (
+                        <>
+                          .<br />
+                        </>
+                      )}
+                    </span>
+                  ))}
+                </Grid>
+              </Box>
+              <Box sx={{width: "100%"}}>
+                <Grid xs={12}>
+                  <Typography fontSize={12}>
+                    <Stack direction={"row"} sx={{alignItems: "center"}}>
+                      <div style={{backgroundColor: product.quantity > 0 ? "#04BA2E" : "#BDBDBD", height: "10px", width: "10px", marginRight: "10px"}}/>
+                      {product.quantity > 0 ? `В наличии ${product.quantity} шт.` : 'Нет в наличии'}
+                    </Stack>
+                  </Typography>
+                </Grid>
+                <Grid xs={12} sx={{wordBreak: "break-all", width: "100%", paddingBottom: 0}}>
+                  <Typography fontSize={12} sx={{display: "flex", justifyContent: "space-between"}}>
+                    <span style={{color: "#00000080", wordBreak: "break-word"}}>Номер детали</span><span>{product.item_no}</span>
+                  </Typography>
+                </Grid>
+                <Grid xs={12} sx={{justifyContent: "space-between", width: "100%", paddingTop: 0}}>
+                  <Typography fontSize={12} sx={{display: "flex", justifyContent: "space-between"}}>
+                    <span style={{color: "#00000080", wordBreak: "break-word"}}>Цвет</span><span>{product.color}</span>
+                  </Typography>
+                </Grid>
+                <Grid xs={12}>
+                  <Stack>
+                    <Typography fontSize={16}>
+                      <strong>{product.price}$</strong>
+                    </Typography>
+                    <Typography fontSize={12} color={"#00000080"}>
+                      (~{
+                        Math.round((parseFloat(product.price) * rub + Number.EPSILON) * 100) / 100
+                      } RUB, {
+                        Math.round((parseFloat(product.price) * byn + Number.EPSILON) * 100) / 100
+                      } BYN)
+                    </Typography>
+                  </Stack>
+                </Grid>
+                <Grid xs={12}>
+                  <Stack direction={"row"} sx={{alignItems: "center", justifyContent: "space-evenly", border: "1px solid #D7D7D7", padding: "5px", margin: "auto 0", width: "100%"}}>
+                    <button
+                      className="quantity-button"
+                      style={{backgroundColor: counters[product.id] ? "#FF1B15" : ""}}
+                      onClick={() => handleCounterChange(product, product.quantity)((counters[product.id] || 0) - 1)}
+                    >-</button>
+                    <input
+                      type="number"
+                      className="plain-number"
+                      min={0}
+                      max={product.quantity}
+                      value={counters[product.id] || 0}
+                      onChange={(e) => handleCounterChange(product, product.quantity)(e.target.value)}
+                    />
+                    <button
+                      className="quantity-button"
+                      style={{backgroundColor: counters[product.id] ? "#FF1B15" : ""}}
+                      onClick={() => handleCounterChange(product, product.quantity)((counters[product.id] || 0) + 1)}
+                    >+</button>
+                  </Stack>
+                </Grid>
+              </Box>
+            </Grid>
+          </Paper>
+        </Grid>
+      ));
+    } else {
+      currentData = items.map((product) => (
         <Paper sx={{
           width: {xs: "auto"},
           height: {xs: "auto"},
@@ -87,7 +195,7 @@ export default function CatalogTable({items, notFoundItems}) {
             {/*<Grid xs={1} md={1}>*/}
             {/*  <Checkbox />*/}
             {/*</Grid>*/}
-            <Grid sx={{display: "flex", alignItems: "center", justifyContent: {xs: "center"}}} xs={6} md={2}>
+            <Grid sx={{display: "flex", alignItems: "center", justifyContent: {xs: "center"}}} xs={12} md={2}>
               <Box
                 component="img"
                 sx={{height: 90, objectFit: "contain", borderRadius: "10px", width: "80%"}}
@@ -105,7 +213,7 @@ export default function CatalogTable({items, notFoundItems}) {
               {product.color}
             </Grid>
             <Grid xs={6} md={3}>
-              {product.description.split('.').map((part, index, arr) => (
+              {decodeHtml(product.description).split('.').map((part, index, arr) => (
                 <span key={index}>
                   {part}
                   {index < arr.length - 1 && (
@@ -173,8 +281,8 @@ export default function CatalogTable({items, notFoundItems}) {
             </Grid>
           </Grid>
         </Paper>
-      )
-    })
+      ))
+    }
 
     if(currentData && currentData.length) {
       setData(currentData);
@@ -224,7 +332,15 @@ export default function CatalogTable({items, notFoundItems}) {
             </Grid>
           </Grid>
         }
-        {data}
+        {isMobile ?
+          <Grid container alignItems="stretch" spacing={2} sx={{marginBottom: "10px"}}>
+            {data}
+          </Grid>
+          :
+          <>
+            {data}
+          </>
+        }
       </Box>
       {items && !notFoundItems &&
       <Pagination urlBase="catalog" itemsLen={items.length} amountOfPages={pages} productsOnPage={perPage} setProductsOnPage={setPerPage}/>

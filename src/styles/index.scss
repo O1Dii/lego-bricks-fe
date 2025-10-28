@@ -323,3 +323,37 @@ button {
 .grey-text {
   color: #00000080;
 }
+
+.present-only-for-small-screen {
+  display: none !important;
+}
+
+.absent-for-small-screen {
+  display: block !important;
+}
+
+@media only screen and (max-width: 700px) {
+  .present-only-for-small-screen {
+    display: flex !important;
+  }
+
+  .absent-for-small-screen {
+    display: none !important;
+  }
+
+  .drawer-button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+    padding: 10px 0;
+    font-size: 16px;
+  }
+
+  .drawer-button:hover {
+    opacity: 0.8;
+  }
+}

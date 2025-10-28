@@ -76,42 +76,12 @@ function Login({ onLogin }) {
 
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     if (localStorage.getItem("username") === USERNAME && localStorage.getItem("password") === PASSWORD) {
       setAuthenticated(true);
     }
   }, []);
-
-
-  useEffect(() => {
-    const checkMobile = () => {
-      const userAgent = navigator.userAgent.toLowerCase();
-      console.log(userAgent);
-      const mobile =
-        /android|iphone|ipad|ipod|opera mini|iemobile|mobile/.test(userAgent);
-      setIsMobile(mobile);
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-
-  if (isMobile) {
-    return (
-      <div>
-        <Typography fontSize={20}>
-          Мобильная версия не поддерживается
-        </Typography>
-        <Typography fontSize={16}>
-          Пожалуйста, используйте сайт с ПК или ПК-версию сайта на мобильном устройстве.
-        </Typography>
-      </div>
-    );
-  }
 
   return (
     <ThemeProvider theme={theme}>
