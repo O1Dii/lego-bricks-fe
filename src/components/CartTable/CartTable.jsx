@@ -299,7 +299,15 @@ export default function CartTable({items, loading}) {
             </Grid>
           </Grid>
         }
-        {data}
+        {isMobile ?
+          <Grid container alignItems="stretch" spacing={2} sx={{marginBottom: "10px"}}>
+            {data}
+          </Grid>
+          :
+          <>
+            {data}
+          </>
+        }
       </Box>
       {items &&
       <Pagination urlBase="cart" itemsLen={items.length} productsOnPage={perPage} setProductsOnPage={setPerPage}/>
@@ -309,7 +317,7 @@ export default function CartTable({items, loading}) {
           Товаров на сумму
         </Typography>
         <Stack sx={{alignItems: "flex-end"}}>
-          <Typography fontSize={24}>
+          <Typography fontSize={isMobile ? 20 : 24}>
             <strong>
               {getCartSum()}$
             </strong>

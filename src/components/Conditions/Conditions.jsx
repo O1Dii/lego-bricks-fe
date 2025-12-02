@@ -13,6 +13,8 @@ import * as React from "react";
 // Импорт флагов (предполагаемые пути)
 // import russiaFlag from "../../icons/russia-flag.png";
 import belarusFlag from "../../icons/belarus.png";
+import {useMediaQuery} from "@mui/material";
+import {useState} from "react";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   backgroundColor: '#f8f9fa',
@@ -51,6 +53,7 @@ const StepContainer = styled(Box)(({ theme }) => ({
 
 const CountryFlag = styled(Box)(({ theme }) => ({
   width: '25px',
+  minWidth: '25px',
   height: '25px',
   marginRight: theme.spacing(1),
   display: 'inline-block',
@@ -78,11 +81,21 @@ const SupportItem = styled(Box)(({ theme }) => ({
 }));
 
 export default function Conditions() {
+  const isMobile = useMediaQuery('(max-width:700px)');
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   return (
     <>
-      <Navigation />
+      <Navigation drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen}/>
       <StyledBox>
-        <ContentContainer>
+        <ContentContainer
+          sx={{
+            textAlign: isMobile ? 'left' : 'center',
+            alignItems: isMobile ? 'flex-start' : 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+          }}>
           <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
             Условия покупки
           </Typography>
@@ -132,21 +145,27 @@ export default function Conditions() {
           </StepContainer>
 
           {/* Оплата */}
-          <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 'bold', mb: 3, mt: 4 }}>
+          <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 'bold', mb: 3 }}>
             Оплата
           </Typography>
 
           <Box sx={{ mb: 2 }}>
             <Typography variant="body1" sx={{ color: '#555', lineHeight: 1.6, display: 'flex', alignItems: 'center' }}>
               <RussiaFlag />
-              <strong style={{marginRight: "8px"}}>Россия:</strong>Сбербанк, наличные, оплата через Avito (если доставка avito).
+              {isMobile ?
+                "Россия: " :
+                <strong style={{marginRight: "8px"}}>Россия:</strong>
+              }Сбербанк, наличные, оплата через Avito (если доставка avito).
             </Typography>
           </Box>
 
           <Box sx={{ mb: 3 }}>
             <Typography variant="body1" sx={{ color: '#555', lineHeight: 1.6, display: 'flex', alignItems: 'center' }}>
               <img style={{height: "25px", width: "25px", marginRight: "8px"}} src={belarusFlag} alt="belarus" />
-              <strong style={{marginRight: "8px"}}>Беларусь:</strong>наличные, наложенный платеж (Европочта/Почта РБ).
+              {isMobile ?
+                "Беларусь: " :
+                <strong style={{marginRight: "8px"}}>Беларусь:</strong>
+              }наличные, наложенный платеж (Европочта/Почта РБ).
             </Typography>
           </Box>
 
@@ -158,14 +177,20 @@ export default function Conditions() {
           <Box sx={{ mb: 2 }}>
             <Typography variant="body1" sx={{ color: '#555', lineHeight: 1.6, display: 'flex', alignItems: 'center' }}>
               <RussiaFlag />
-              <strong style={{marginRight: "8px"}}>Россия:</strong>только через Avito (выбирайте удобный вариант).
+              {isMobile ?
+                "Россия: " :
+                <strong style={{marginRight: "8px"}}>Россия:</strong>
+              }только через Avito (выбирайте удобный вариант).
             </Typography>
           </Box>
 
           <Box sx={{ mb: 3 }}>
             <Typography variant="body1" sx={{ color: '#555', lineHeight: 1.6, display: 'flex', alignItems: 'center' }}>
               <img style={{height: "25px", width: "25px", marginRight: "8px"}} src={belarusFlag} alt="belarus" />
-              <strong style={{marginRight: "8px"}}>Беларусь:</strong>Почта РБ, Европочта.
+              {isMobile ?
+                "Беларусь: " :
+                <strong style={{marginRight: "8px"}}>Беларусь:</strong>
+              }Почта РБ, Европочта.
             </Typography>
           </Box>
 

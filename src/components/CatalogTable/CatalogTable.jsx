@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
-import {Button, useMediaQuery} from "@mui/material";
+import {Button, Tooltip, useMediaQuery} from "@mui/material";
 import {Link, MemoryRouter, Route, Routes, useLocation} from 'react-router-dom';
 import PaginationItem from '@mui/material/PaginationItem';
 import MenuItem from '@mui/material/MenuItem';
@@ -18,7 +18,7 @@ import TextField from "@mui/material/TextField";
 import {SettingsContext} from "../../context/SettingsContext";
 import decodeHtml from "../../utils/decodeHtml";
 
-export default function CatalogTable({items, notFoundItems}) {
+export default function CatalogTable({items, notFoundItems, applyAllClickCounter}) {
   const {perPage, setPerPage, pages} = useContext(ItemsContext);
   // end pagination
 
@@ -27,6 +27,7 @@ export default function CatalogTable({items, notFoundItems}) {
 
   const [data, setData] = useState([]);
   const [counters, setCounters] = useState({});
+  const [minQtyCounters, setMinQtyCounters] = useState({});
 
   const isMobile = useMediaQuery('(max-width:700px)');
 
@@ -34,13 +35,21 @@ export default function CatalogTable({items, notFoundItems}) {
     if (!items || !cartItems) return;
 
     const syncedCounters = {};
+    const newMinQtyCounters = {};
     items.forEach((product) => {
       const cartItem = cartItems.find((ci) => ci.id === product.id);
       syncedCounters[product.id] = cartItem ? cartItem.quantityInCart : 0;
+      newMinQtyCounters[product.id] = product.min_qty;
     });
 
     setCounters(syncedCounters);
-  }, [items, cartItems.length]);
+    setMinQtyCounters(newMinQtyCounters);
+    console.log(newMinQtyCounters);
+  }, [items, cartItems.length, reloader]);
+
+  const handleMinQtyApply = (item) => {
+    handleCounterChange(item, item.quantity)(item.min_qty);
+  }
 
   const handleCounterChange = (item, max) => (unprocessedValue) => {
     console.log(item, unprocessedValue);
@@ -64,16 +73,19 @@ export default function CatalogTable({items, notFoundItems}) {
       }));
       changeQuantityOfItemInCart(item, value)
     }
+    if (value > max) {
+      setCounters((prev) => ({
+        ...prev,
+        [item.id]: isNaN(max) ? 0 : max,
+      }));
+      changeQuantityOfItemInCart(item, max)
+    }
   };
 
-  console.log(counters);
-
-  // Передача количества в addItem
-  // const handleAddToCart = (product) => {
-  //   const quantity = counters[product.id] || 0;
-  //   product.quantityInCart = quantity;
-  //   addItem(product);
-  // }
+  // apply all minQty counters
+  useEffect(() => {
+    items.forEach(item => item?.min_qty && handleMinQtyApply(item));
+  }, [applyAllClickCounter])
 
   useEffect(() => {
     let currentData = null;
@@ -135,9 +147,14 @@ export default function CatalogTable({items, notFoundItems}) {
                     <span style={{color: "#00000080", wordBreak: "break-word"}}>Номер детали</span><span>{product.item_no}</span>
                   </Typography>
                 </Grid>
-                <Grid xs={12} sx={{justifyContent: "space-between", width: "100%", paddingTop: 0}}>
+                <Grid xs={12} sx={{justifyContent: "space-between", width: "100%", paddingTop: 0, paddingBottom: 0}}>
                   <Typography fontSize={12} sx={{display: "flex", justifyContent: "space-between"}}>
                     <span style={{color: "#00000080", wordBreak: "break-word"}}>Цвет</span><span>{product.color}</span>
+                  </Typography>
+                </Grid>
+                <Grid xs={12} sx={{justifyContent: "space-between", width: "100%", paddingTop: 0}}>
+                  <Typography fontSize={12} sx={{display: "flex", justifyContent: "space-between"}}>
+                    <span style={{color: "#00000080", wordBreak: "break-word"}}>Состояние</span><span>{product.condition}</span>
                   </Typography>
                 </Grid>
                 <Grid xs={12}>
@@ -155,25 +172,48 @@ export default function CatalogTable({items, notFoundItems}) {
                   </Stack>
                 </Grid>
                 <Grid xs={12}>
-                  <Stack direction={"row"} sx={{alignItems: "center", justifyContent: "space-evenly", border: "1px solid #D7D7D7", padding: "5px", margin: "auto 0", width: "100%"}}>
-                    <button
-                      className="quantity-button"
-                      style={{backgroundColor: counters[product.id] ? "#FF1B15" : ""}}
-                      onClick={() => handleCounterChange(product, product.quantity)((counters[product.id] || 0) - 1)}
-                    >-</button>
-                    <input
-                      type="number"
-                      className="plain-number"
-                      min={0}
-                      max={product.quantity}
-                      value={counters[product.id] || 0}
-                      onChange={(e) => handleCounterChange(product, product.quantity)(e.target.value)}
-                    />
-                    <button
-                      className="quantity-button"
-                      style={{backgroundColor: counters[product.id] ? "#FF1B15" : ""}}
-                      onClick={() => handleCounterChange(product, product.quantity)((counters[product.id] || 0) + 1)}
-                    >+</button>
+                  <Stack>
+                    <Stack direction={"row"} sx={{alignItems: "center", justifyContent: "space-evenly", border: "1px solid #D7D7D7", padding: "5px", margin: "auto 0", width: "100%"}}>
+                      <button
+                        className="quantity-button"
+                        style={{backgroundColor: counters[product.id] ? "#FF1B15" : ""}}
+                        onClick={() => handleCounterChange(product, product.quantity)((counters[product.id] || 0) - 1)}
+                      >-</button>
+                      <input
+                        type="number"
+                        className="plain-number"
+                        min={0}
+                        max={product.quantity}
+                        value={counters[product.id] || 0}
+                        onChange={(e) => handleCounterChange(product, product.quantity)(e.target.value)}
+                      />
+                      <button
+                        className="quantity-button"
+                        style={{backgroundColor: counters[product.id] ? "#FF1B15" : ""}}
+                        onClick={() => handleCounterChange(product, product.quantity)((counters[product.id] || 0) + 1)}
+                      >+</button>
+                    </Stack>
+                    {minQtyCounters[product.id] &&
+                      <>
+                        <Stack direction={"row"} sx={{alignItems: "center", justifyContent: "space-evenly", border: "1px solid #D7D7D7", margin: "auto 0"}}>
+                          <input
+                            type="number"
+                            className="plain-number"
+                            disabled={true}
+                            value={minQtyCounters[product.id]}
+                            style={product.warning ? {color: "#FF1B15"} : {}}
+                          />
+                          <button
+                            className="quantity-button"
+                            style={{backgroundColor: "#FF1B15"}}
+                            onClick={() => handleMinQtyApply(product)}
+                          >✓</button>
+                        </Stack>
+                        {product.warning ? <Typography fontSize={12} style={{color: "#FF1B15"}}>
+                          {product.quantity > 0 ? `В наличии ${product.quantity} шт.` : 'Нет в наличии'}
+                        </Typography> : <></>}
+                      </>
+                    }
                   </Stack>
                 </Grid>
               </Box>
@@ -212,7 +252,7 @@ export default function CatalogTable({items, notFoundItems}) {
             <Grid xs={6} md={1}>
               {product.color}
             </Grid>
-            <Grid xs={6} md={3}>
+            <Grid xs={6} md={2}>
               {decodeHtml(product.description).split('.').map((part, index, arr) => (
                 <span key={index}>
                   {part}
@@ -223,6 +263,9 @@ export default function CatalogTable({items, notFoundItems}) {
                   )}
                 </span>
               ))}
+            </Grid>
+            <Grid xs={6} md={1}>
+              {product.condition}
             </Grid>
             <Grid xs={12} md={4}>
               <Stack direction={"row"} sx={{justifyContent: "space-between"}}>
@@ -247,16 +290,8 @@ export default function CatalogTable({items, notFoundItems}) {
                 {/*{isItemInCart(product.id)*/}
                 {/*  ? <button className={"accent-button-style"} onClick={() => removeItem(product.id)}>Убрать из корзины</button>*/}
                 {/*  :*/}
+                <Stack>
                   <Stack direction={"row"} sx={{alignItems: "center", border: "1px solid #D7D7D7", margin: "auto 0"}}>
-                    {/*<button*/}
-                    {/*  className="accent-button-style"*/}
-                    {/*  onClick={() => handleAddToCart(product)}*/}
-                    {/*  disabled={!(counters[product.id] > 0)}*/}
-                    {/*  sx={{lineHeight: "normal"}}*/}
-                    {/*  style={{height: "40px"}}*/}
-                    {/*>*/}
-                    {/*  Добавить в корзину*/}
-                    {/*</button>*/}
                     <button
                       className="quantity-button"
                       style={{backgroundColor: counters[product.id] ? "#FF1B15" : ""}}
@@ -276,6 +311,33 @@ export default function CatalogTable({items, notFoundItems}) {
                       onClick={() => handleCounterChange(product, product.quantity)((counters[product.id] || 0) + 1)}
                     >+</button>
                   </Stack>
+                  {minQtyCounters[product.id] &&
+                    <Stack direction={"row"} sx={{alignItems: "center", justifyContent: "space-evenly", border: "1px solid #D7D7D7", margin: "auto 0"}}>
+                      {product.warning ?
+                        <Tooltip title={product.warning}>
+                          <input
+                            type="number"
+                            className="plain-number"
+                            disabled={true}
+                            value={minQtyCounters[product.id]}
+                            style={{color: "#FF1B15"}}
+                          />
+                        </Tooltip> :
+                        <input
+                          type="number"
+                          className="plain-number"
+                          disabled={true}
+                          value={minQtyCounters[product.id]}
+                        />
+                      }
+                      <button
+                        className="quantity-button"
+                        style={{backgroundColor: "#FF1B15"}}
+                        onClick={() => handleMinQtyApply(product)}
+                      >✓</button>
+                    </Stack>
+                  }
+                </Stack>
                 {/*}*/}
               </Stack>
             </Grid>
@@ -320,9 +382,14 @@ export default function CatalogTable({items, notFoundItems}) {
                 Цвет
               </Typography>
             </Grid>
-            <Grid xs={3}>
+            <Grid xs={2}>
               <Typography fontSize={14} color={"#00000080"}>
                 Описание
+              </Typography>
+            </Grid>
+            <Grid xs={1}>
+              <Typography fontSize={14} color={"#00000080"}>
+                Состояние
               </Typography>
             </Grid>
             <Grid xs={4}>

@@ -14,7 +14,7 @@ import Skeleton from "@mui/material/Skeleton";
 import CategoriesMenu from "../CategoriesMenu/CategoriesMenu";
 import Paper from "@mui/material/Paper";
 
-export default function Navigation({onMobileCatalogClick, drawerOpen, setDrawerOpen}) {
+export default function Navigation({onMobileCatalogClick, searchComponent, drawerOpen, setDrawerOpen}) {
   const navigate = useNavigate();
   const {items} = useContext(CartContext);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -100,14 +100,14 @@ export default function Navigation({onMobileCatalogClick, drawerOpen, setDrawerO
           // ======= MOBILE =======
           <Stack sx={{width: "100%"}}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{paddingRight: "10px", width: "100%"}}>
-              <Button onClick={() => {toggleDrawer(false); navigate("/catalog")}} style={{padding: 0}}>
+              <Button onClick={() => {setDrawerOpen(false); navigate("/catalog")}} style={{padding: 0}}>
                 {getSvg('logo')}
               </Button>
               <button
                 style={{display: "flex", alignItems: "center", flexGrow: "1", paddingLeft: "10px", justifyContent: "flex-start", gap: "5px"}}
                 className={"accent-button-style"}
                 onClick={() => {
-                  toggleDrawer(false);
+                  setDrawerOpen(false);
                   if (onMobileCatalogClick) {
                     onMobileCatalogClick()
                   } else {
@@ -117,26 +117,27 @@ export default function Navigation({onMobileCatalogClick, drawerOpen, setDrawerO
               >
                 {getSvg('catalog', 'black')} Каталог
               </button>
+              <button onClick={() => {setDrawerOpen(false); navigate("/cart")}} className={"accent-button-style"} style={{padding: "5px 10px", height: "60px", marginRight: "5px"}}>
+                <Badge
+                  badgeContent={items.length || 0}
+                  sx={{
+                    alignItems: "center",
+                    "& .MuiBadge-badge": {
+                      backgroundColor: "#FF1B15",
+                      color: "#fff",
+                    },
+                  }}
+                >
+                  Корзина <span style={{marginLeft: "5px", display: "flex", alignItems: "center"}}>{getSvg('cart', 'black')}</span>
+                </Badge>
+              </button>
               <Stack direction="row" alignItems="center" gap={1}>
                 <button onClick={toggleDrawer(!drawerOpen)} className="accent-button-style">
                   {getSvg('menu', 'black')}
                 </button>
               </Stack>
             </Stack>
-            <button onClick={() => {toggleDrawer(false); navigate("/cart")}} className={"cart-button"} style={{padding: "5px 10px", height: "60px", backgroundColor: "#4F4D4D"}}>
-              <Badge
-                badgeContent={items.length || 0}
-                sx={{
-                  alignItems: "center",
-                  "& .MuiBadge-badge": {
-                    backgroundColor: "#FF1B15",
-                    color: "#fff",
-                  },
-                }}
-              >
-                Корзина <span style={{marginLeft: "10px", display: "flex", alignItems: "center"}}>{getSvg('cart', 'white')}</span>
-              </Badge>
-            </button>
+            {searchComponent}
           </Stack>
         )}
       </Toolbar>
@@ -179,12 +180,24 @@ export default function Navigation({onMobileCatalogClick, drawerOpen, setDrawerO
             position: "relative"
           }}
         >
-          <Stack sx={{width: 250}}>
-            <button className="drawer-button" onClick={() => {navigate("/conditions"); setDrawerOpen(false);}}>
-              {getSvg('conditions', 'black')} Условия покупки
+          <Stack sx={{width: "100%"}}>
+            <button className="drawer-button" style={{
+              display: "flex",
+              justifyContent: "space-between",
+              paddingBottom: "15px",
+              fontWeight: "500",
+              borderBottom: "1px solid #D7D7D7"
+            }} onClick={() => {navigate("/conditions"); setDrawerOpen(false);}}>
+              <span>Условия покупки</span> {getSvg('conditions', 'black')}
             </button>
-            <button className="drawer-button" onClick={handleMenuOpenClick}>
-              {getSvg('contact', 'black')} Связаться с нами
+            <button className="drawer-button" style={{
+              display: "flex",
+              justifyContent: "space-between",
+              padding: "15px 0",
+              fontWeight: "500",
+              borderBottom: "1px solid #D7D7D7"
+            }} onClick={handleMenuOpenClick}>
+              <span>Связаться с нами</span> {getSvg('contact', 'black')}
             </button>
           </Stack>
         </Paper>

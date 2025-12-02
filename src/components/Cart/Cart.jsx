@@ -299,7 +299,7 @@ export default function Cart() {
                   height: "60px",
                   color: "white",
                   backgroundColor: "#FF1B15",
-                  position: "absolute",
+                  position: "fixed",
                   bottom: 0,
                   left: 0,
                   width: "100%",

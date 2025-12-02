@@ -3,7 +3,7 @@
 export const API_ROOT = 'https://mybriks.ru/api/'
 export const API_BASE = () => `${API_ROOT}`
 
-export const ITEMS_GET = (search, page, category) => `${API_BASE()}catalog?page=${page}${search !== '' ? '&search=' + search : ''}${category !== '' ? '&category=' + category : ''}`;
+export const ITEMS_GET = (search, page, category, sort, perPage) => `${API_BASE()}catalog?page=${page}${search !== '' ? '&search=' + search : ''}${category !== '' ? '&category=' + category : ''}${sort !== '' ? '&sort_order=' + sort : ''}${perPage !== '' ? '&per_page=' + perPage : ''}`;
 export const ITEMS_GET_ITEM_BY_ID = (id) => `${API_BASE()}catalog_item/${id}`;
 export const ORDERS_POST_ORDER = () => `${API_BASE()}cart`;
 export const WANTED_LIST_SAVE = () => `${API_BASE()}save_as_wanted_list`;

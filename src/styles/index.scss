@@ -357,3 +357,68 @@ button {
     opacity: 0.8;
   }
 }
+.dropdown {
+  position: relative;
+  min-width: 160px;
+  font-family: Arial, sans-serif;
+
+  &__button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    background: #fff;
+    font-size: 16px;
+    color: #222;
+    cursor: pointer;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: #f7f7f7;
+    }
+  }
+
+  &__icon {
+    transition: transform 0.2s ease;
+    color: #333;
+
+    &.rotated {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    z-index: 10;
+  }
+
+  &__item {
+    text-align: start;
+    padding: 10px 14px;
+    font-size: 16px;
+    color: #222;
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: #f2f2f2;
+    }
+
+    &.selected {
+      color: #FF1B15;
+      font-weight: 500;
+    }
+
+    &:not(:last-child) {
+      border-bottom: 1px solid #D7D7D7;
+    }
+  }
+}

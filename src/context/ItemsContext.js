@@ -25,7 +25,7 @@ export default function ItemsContextProvider(props) {
   const [loading, setLoading] = useState(false);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
 
-  const loadItems = (search = '', page = 1, category = '') => {
+  const loadItems = (search = '', page = 1, category = '', sort= '', perPage = 25) => {
     console.log('load items')
     // setItems({
     //   items: [{
@@ -51,7 +51,7 @@ export default function ItemsContextProvider(props) {
     // })
     setLoading(true)
     axios
-      .get(ITEMS_GET(search, page, category))
+      .get(ITEMS_GET(search, page, category.trim(), sort, perPage))
       .then(response => {
         setItems({items: response.data.items, errorMessage: ''});
         setPages(response.data.pages);

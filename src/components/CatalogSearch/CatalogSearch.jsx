@@ -27,11 +27,12 @@ const StyledTextField = styled(TextField)({
   },
 });
 
-export default function CatalogSearch({value, setValue, onSearchClick}) {
+export default function CatalogSearch({value, setValue, onSearchClick, boxStyle}) {
   return (
     <Box
       component="form"
       className="input-holder"
+      style={boxStyle}
       onSubmit={onSearchClick}
     >
       <span className="input-icon">

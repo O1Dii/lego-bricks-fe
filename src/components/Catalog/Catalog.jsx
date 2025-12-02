@@ -30,6 +30,7 @@ import TextField from "@mui/material/TextField";
 import {ExpandLess, ExpandMore, StarBorder} from "@mui/icons-material";
 import getSvg from "../../constants/svg";
 import CategoriesMenu from "../CategoriesMenu/CategoriesMenu";
+import Dropdown from "../Dropdown/Dropdown";
 
 
 const VisuallyHiddenInput = styled('input')({
@@ -46,9 +47,15 @@ const VisuallyHiddenInput = styled('input')({
 
 
 export default function Catalog() {
+  const sortMap = {
+    'Номер детали': 'item_no',
+    'Цена': 'price',
+    'Количество': 'quantity'
+  }
+  const navigate = useNavigate();
+
   const {items, categories, loadItems, loadCategories, loading, categoriesLoading, uploadWantedList} = useContext(ItemsContext);
   const [searchValue, setSearchValue] = useState('');
-  const [categoryOpen, setCategoryOpen] = useState(['Parts']);
   const [selectedCategory, setSelectedCategory] = useState('Parts');
 
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -56,26 +63,24 @@ export default function Catalog() {
   const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
   const [failureSnackbarOpen, setFailureSnackbarOpen] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [applyAllMinQuantityCounter, setApplyAllMinQuantityCounter] = useState(0);
+  const [selectedSort, setSelectedSort] = useState('Номер детали');
+  const [perPage, setPerPage] = useState(25);
 
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const page = parseInt(query.get('page') || '1', 10);
   const isMobile = useMediaQuery('(max-width:700px)');
 
-  const toggleCategory = (currentCategory) => {
-    setCategoryOpen((prevOpen) => {
-      if (prevOpen.includes(currentCategory)) {
-        return prevOpen.filter((cat) => cat !== currentCategory);
-      } else {
-        return [...prevOpen, currentCategory];
-      }
-    });
+  const clearQuery = () => {
+    navigate(location.pathname, { replace: true });
   };
 
   const onSearchClick = (e) => {
     e.preventDefault();
     console.log('search click')
-    loadItems(searchValue, 1, selectedCategory);
+    loadItems(searchValue, 1, selectedCategory, sortMap[selectedSort], perPage);
+    clearQuery();
     loadCategories();
     setShowMenu(false);
   }
@@ -85,6 +90,8 @@ export default function Catalog() {
     if (!file) return;
 
     await uploadWantedList(file);
+
+    setShowMenu(false);
   };
 
   // function renderCategories(categories, depth = 0, parentCategories) {
@@ -117,7 +124,8 @@ export default function Catalog() {
 
   useEffect(() => {
     console.log('use effect')
-    loadItems('', 1, selectedCategory);
+    loadItems('', 1, selectedCategory, sortMap[selectedSort], perPage);
+    clearQuery();
     setShowMenu(false);
     setSearchValue('');
     loadCategories();
@@ -125,13 +133,25 @@ export default function Catalog() {
 
   useEffect(() => {
     console.log('use effect')
-    loadItems(searchValue, page, selectedCategory);
+    loadItems(searchValue, page, selectedCategory, sortMap[selectedSort], perPage);
     loadCategories();
-  }, [page])
+  }, [page, selectedSort, perPage])
 
   return (
     <>
-      <Navigation onMobileCatalogClick={() => setShowMenu(!showMenu)} drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen}/>
+      <Navigation
+        onMobileCatalogClick={() => setShowMenu(!showMenu)}
+        searchComponent={
+          <CatalogSearch
+            boxStyle={{boxShadow: "inset 0 4px 4px -2px lightgrey"}}
+            value={searchValue}
+            setValue={setSearchValue}
+            onSearchClick={onSearchClick}
+          />
+        }
+        drawerOpen={drawerOpen}
+        setDrawerOpen={setDrawerOpen}
+      />
       <Snackbar
         open={successSnackbarOpen}
         autoHideDuration={5000}
@@ -165,84 +185,100 @@ export default function Catalog() {
           {/* ПК версия */}
           {!isMobile && (
             <>
-              <Grid item xs={3}>
-                <Paper
-                  sx={{
-                    backgroundColor: "#ECECEC",
-                    width: "100%",
-                    borderRadius: 0,
-                    height: "100%",
-                    minHeight: "calc(100vh - 120px)",
-                    padding: "20px",
-                  }}
-                >
-                  <Stack>
-                    <div>
-                      <CatalogSearch
-                        value={searchValue}
-                        setValue={setSearchValue}
-                        onSearchClick={onSearchClick}
-                      />
-                    </div>
-                    <Tooltip title="Загрузите Wanted list с BL — система автоматически найдёт все доступные детали из вашего списка">
-                      <label
-                        className="accent-button-style"
-                        style={{
-                          height: "auto",
-                          margin: "10px 0 20px 0",
-                          cursor: "pointer",
-                        }}
-                      >
-                        <Stack direction="row" sx={{ alignItems: "center", marginRight: "auto" }}>
-                          <div style={{ marginRight: "10px" }}>
-                            {getSvg("upload", "black")}
-                          </div>
-                          <Stack>
-                            <Typography fontSize={15} align="left">
-                              Загрузить Wanted list
-                            </Typography>
-                            <Typography className="grey-text" fontSize={14} align="left">
-                              Загрузите текстовый файл весом до 5Мб
-                            </Typography>
-                          </Stack>
-                        </Stack>
-                        <VisuallyHiddenInput type="file" onChange={onFileUpload} multiple />
-                      </label>
-                    </Tooltip>
-                  </Stack>
-                  <Divider
-                    sx={{
-                      width: "120%",
-                      borderColor: "white",
-                      position: "relative",
-                      left: "-20px",
-                    }}
-                  />
-                  <Typography align="left" fontSize={18} sx={{ marginTop: "10px" }}>
-                    <strong>Каталог деталей</strong>
-                  </Typography>
-                  {categoriesLoading ? (
-                    <>
-                      <Skeleton variant="rounded" />
-                      <Skeleton variant="rounded" />
-                      <Skeleton variant="rounded" />
-                    </>
-                  ) : (
-                    <CategoriesMenu
-                      categories={categories}
-                      selectedCategory={selectedCategory}
-                      setSelectedCategory={setSelectedCategory}
+              <Grid item xs={3} sx={{
+                backgroundColor: "#ECECEC",
+                position: "sticky",
+                top: 0,
+                height: "100vh",
+                overflowY: "auto",
+                paddingRight: "8px",
+                boxSizing: "border-box",
+                padding: "20px"
+              }}
+              >
+                <Stack>
+                  <div>
+                    <CatalogSearch
+                      value={searchValue}
+                      setValue={setSearchValue}
+                      onSearchClick={onSearchClick}
                     />
-                  )}
-                </Paper>
+                  </div>
+                  <Tooltip title="Загрузите Wanted list с BL — система автоматически найдёт все доступные детали из вашего списка">
+                    <label
+                      className="accent-button-style"
+                      style={{
+                        height: "auto",
+                        margin: "10px 0 20px 0",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <Stack direction="row" sx={{ alignItems: "center", marginRight: "auto" }}>
+                        <div style={{ marginRight: "10px" }}>
+                          {getSvg("upload", "black")}
+                        </div>
+                        <Stack>
+                          <Typography fontSize={15} align="left">
+                            Загрузить Wanted list
+                          </Typography>
+                          <Typography className="grey-text" fontSize={14} align="left">
+                            Загрузите текстовый файл весом до 5Мб
+                          </Typography>
+                        </Stack>
+                      </Stack>
+                      <VisuallyHiddenInput type="file" onChange={onFileUpload} multiple />
+                    </label>
+                  </Tooltip>
+                </Stack>
+                <Divider
+                  sx={{
+                    width: "120%",
+                    borderColor: "white",
+                    position: "relative",
+                    left: "-20px",
+                  }}
+                />
+                <Typography align="left" fontSize={18} sx={{ marginTop: "10px" }}>
+                  <strong>Каталог деталей</strong>
+                </Typography>
+                {categoriesLoading ? (
+                  <>
+                    <Skeleton variant="rounded" />
+                    <Skeleton variant="rounded" />
+                    <Skeleton variant="rounded" />
+                  </>
+                ) : (
+                  <CategoriesMenu
+                    categories={categories}
+                    selectedCategory={selectedCategory}
+                    setSelectedCategory={setSelectedCategory}
+                  />
+                )}
               </Grid>
               <Grid item xs={9} sx={{ padding: "20px" }}>
-                <Typography align="left" fontSize={28}>
-                  <strong>
-                    Каталог деталей
-                    {!items["not_found_items"] ? "" : " (из загруженного Wanted List)"}
-                  </strong>
-                </Typography>
+                <Stack direction={"row"} sx={{width: "100%", alignItems: "center", justifyContent: "space-between"}}>
+                  <Typography align="left" fontSize={28}>
+                    <strong>
+                      Каталог деталей
+                      {!items["not_found_items"] ? "" : " (из загруженного Wanted List)"}
+                    </strong>
+                  </Typography>
+
+                  {!items["not_found_items"] ? <></> :
+                    <button
+                      className="filled-normal-button"
+                      style={{width: "260px"}}
+                      onClick={() => setApplyAllMinQuantityCounter(applyAllMinQuantityCounter+1)}
+                    >Применить количество</button>
+                  }
+                </Stack>
+
+                {!items["not_found_items"] &&
+                  <Stack direction={"row"} sx={{justifyContent: "space-between", margin: "15px 0"}}>
+                    <Dropdown options={['Номер детали', 'Цена', 'Количество']} selected={selectedSort} setSelected={setSelectedSort}/>
+                    <Dropdown options={[15, 25, 35]} selected={perPage} setSelected={setPerPage} defaultSelected={'25'}/>
+                  </Stack>
+                }
                 {loading ? (
                   <>
                     <Skeleton variant="rounded" height={90} sx={{ mt: 2 }} />
@@ -253,6 +289,7 @@ export default function Catalog() {
                   <CatalogTable
                     items={items["items"] || []}
                     notFoundItems={items["not_found_items"]}
+                    applyAllClickCounter={applyAllMinQuantityCounter}
                   />
                 )}
               </Grid>
@@ -271,11 +308,6 @@ export default function Catalog() {
                     padding: "20px",
                   }}
                 >
-                  <CatalogSearch
-                    value={searchValue}
-                    setValue={setSearchValue}
-                    onSearchClick={onSearchClick}
-                  />
                   <Tooltip title="Загрузите Wanted list с BL — система автоматически найдёт все доступные детали из вашего списка">
                     <label
                       className="accent-button-style"
@@ -318,12 +350,36 @@ export default function Catalog() {
                 </Paper>
               ) : drawerOpen ? <></> : (
                 <Stack sx={{ padding: "20px", backgroundColor: "#ECECEC", minHeight: "calc(100vh - 120px)" }}>
-                  <Typography align="left" fontSize={22} sx={{ mb: 2 }}>
-                    <strong>
-                      {selectedCategory || "Каталог деталей"}
-                      {!items["not_found_items"] ? "" : " (из загруженного Wanted List)"}
-                    </strong>
-                  </Typography>
+                  <Stack direction={"row"} sx={{width: "100%", alignItems: "space-between"}}>
+                    <Typography align="left" fontSize={22} sx={{ mb: 2 }}>
+                      <strong>
+                        {selectedCategory || "Каталог деталей"}
+                        {!items["not_found_items"] ? "" : " (из загруженного Wanted List)"}
+                      </strong>
+                    </Typography>
+                    {!items["not_found_items"] ? <></> :
+                      <Stack style={{margin: "0 0 16px"}}>
+                        <button
+                          className="filled-normal-button"
+                          onClick={() => setApplyAllMinQuantityCounter(applyAllMinQuantityCounter+1)}
+                        >Применить количество</button>
+                        <Typography fontSize={12} style={{color: "#FF1B15"}}>
+                          Пожалуйста, внимательно проверяйте количество каждого товара
+                        </Typography>
+                      </Stack>
+                    }
+                  </Stack>
+
+                  {!items["not_found_items"] &&
+                    <Grid container spacing={2} direction={"row"} sx={{justifyContent: "space-between", width: "100%", margin: "0 0 15px 0", paddingBottom: "15px", borderBottom: "1px solid #D7D7D7"}}>
+                      <Grid xs={6} sx={{paddingLeft: 0, paddingBottom: 0}}>
+                        <Dropdown options={['Номер детали', 'Цена', 'Количество']} selected={selectedSort} setSelected={setSelectedSort}/>
+                      </Grid>
+                      <Grid xs={6} sx={{paddingRight: 0, paddingBottom: 0}}>
+                        <Dropdown options={[15, 25, 35]} selected={perPage} setSelected={setPerPage} defaultSelected={'25'}/>
+                      </Grid>
+                    </Grid>
+                  }
 
                   {loading ? (
                     <>
@@ -335,6 +391,7 @@ export default function Catalog() {
                     <CatalogTable
                       items={items["items"] || []}
                       notFoundItems={items["not_found_items"]}
+                      applyAllClickCounter={applyAllMinQuantityCounter}
                     />
                   )}
                 </Stack>
