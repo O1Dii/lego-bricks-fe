@@ -303,6 +303,7 @@ export default function Cart() {
                   <Stack style={{margin: "0 0 16px"}}>
                     <button
                       className="filled-normal-button"
+                      style={{padding: "0 16px"}}
                       onClick={() => clearCart()}
                       disabled={!items.length}
                     >Очистить</button>
