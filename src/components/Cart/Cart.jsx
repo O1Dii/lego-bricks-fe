@@ -19,7 +19,7 @@ export default function Cart() {
   const isMobile = useMediaQuery('(max-width:700px)');
 
   const {items, getCartSum, getQuantitiesSum, clearCart} = useContext(CartContext);
-  const {minCartPrice} = useContext(SettingsContext);
+  const {minCartPrice, multipl} = useContext(SettingsContext);
   // 0 - are you sure?, 1 - success, 2 - failure
   const [dialogStatus, setDialogStatus] = useState(0);
   const [dialogMessage, setDialogMessage] = useState('');
@@ -181,6 +181,12 @@ export default function Cart() {
                       Корзина
                     </strong>
                   </Typography>
+
+                  <button
+                    className="filled-normal-button"
+                    style={{width: "260px"}}
+                    onClick={() => clearCart()}
+                  >Очистить</button>
                 </Stack>
                 <CartTable items={items} loading={loading || dialogStatus > 0}/>
               </Grid>
@@ -248,7 +254,7 @@ export default function Cart() {
                           </Typography>
                           <Typography fontSize={20}>
                             <strong>
-                              {getCartSum()}$
+                              {getCartSum(multipl)}$
                             </strong>
                           </Typography>
                         </Stack>
@@ -265,7 +271,7 @@ export default function Cart() {
                           <span className="checkmark"></span>
                           Нужна доставка
                         </label>
-                        <button className={"filled-normal-button"} disabled={!items.length || getCartSum() < minCartPrice || !name || !tel} type="submit">
+                        <button className={"filled-normal-button"} disabled={!items.length || getCartSum(multipl) < minCartPrice || !name || !tel} type="submit">
                           Отправить
                         </button>
                         <button type={"button"} className={"filled-normal-button filled-normal-button__secondary"} style={{margin: "10px 0"}} onClick={saveAsWantedList} disabled={!items.length}>
@@ -292,6 +298,13 @@ export default function Cart() {
                       Корзина
                     </strong>
                   </Typography>
+
+                  <Stack style={{margin: "0 0 16px"}}>
+                    <button
+                      className="filled-normal-button"
+                      onClick={() => clearCart()}
+                    >Очистить</button>
+                  </Stack>
                 </Stack>
                 <CartTable items={items} loading={loading || dialogStatus > 0}/>
                 <button onClick={() => setMobileSecondPageOpen(true)} style={{
@@ -374,7 +387,7 @@ export default function Cart() {
                           </Typography>
                           <Typography fontSize={20}>
                             <strong>
-                              {getCartSum()}$
+                              {getCartSum(multipl)}$
                             </strong>
                           </Typography>
                         </Stack>
@@ -391,7 +404,7 @@ export default function Cart() {
                           <span className="checkmark"></span>
                           Нужна доставка
                         </label>
-                        <button className={"filled-normal-button"} disabled={!items.length || getCartSum() < minCartPrice || !name || !tel} type="submit">
+                        <button className={"filled-normal-button"} disabled={!items.length || getCartSum(multipl) < minCartPrice || !name || !tel} type="submit">
                           Отправить
                         </button>
                         <button type={"button"} className={"filled-normal-button filled-normal-button__secondary"} style={{margin: "10px 0"}} onClick={saveAsWantedList} disabled={!items.length}>

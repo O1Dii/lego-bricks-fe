@@ -23,7 +23,7 @@ export default function CatalogTable({items, notFoundItems, applyAllClickCounter
   // end pagination
 
   const {removeItem, changeQuantityOfItemInCart, reloader, items: cartItems} = useContext(CartContext);
-  const {rub, byn} = useContext(SettingsContext);
+  const {rub, byn, multipl} = useContext(SettingsContext);
 
   const [data, setData] = useState([]);
   const [counters, setCounters] = useState({});
@@ -160,13 +160,13 @@ export default function CatalogTable({items, notFoundItems, applyAllClickCounter
                 <Grid xs={12}>
                   <Stack>
                     <Typography fontSize={16}>
-                      <strong>{product.price}$</strong>
+                      <strong>{Math.round((product.price * multipl + Number.EPSILON) * 100) / 100}$</strong>
                     </Typography>
                     <Typography fontSize={12} color={"#00000080"}>
                       (~{
-                        Math.round((parseFloat(product.price) * rub + Number.EPSILON) * 100) / 100
+                        Math.round((parseFloat(product.price) * multipl * rub + Number.EPSILON) * 100) / 100
                       } RUB, {
-                        Math.round((parseFloat(product.price) * byn + Number.EPSILON) * 100) / 100
+                        Math.round((parseFloat(product.price) * multipl * byn + Number.EPSILON) * 100) / 100
                       } BYN)
                     </Typography>
                   </Stack>
@@ -271,13 +271,13 @@ export default function CatalogTable({items, notFoundItems, applyAllClickCounter
               <Stack direction={"row"} sx={{justifyContent: "space-between"}}>
                 <Stack>
                   <Typography fontSize={20}>
-                    <strong>{product.price}$</strong>
+                    <strong>{Math.round((product.price * multipl + Number.EPSILON) * 100) / 100}$</strong>
                   </Typography>
                   <Typography fontSize={14} color={"#00000080"}>
                     (~{
-                      Math.round((parseFloat(product.price) * rub + Number.EPSILON) * 100) / 100
+                      Math.round((parseFloat(product.price) * multipl * rub + Number.EPSILON) * 100) / 100
                     } RUB, {
-                      Math.round((parseFloat(product.price) * byn + Number.EPSILON) * 100) / 100
+                      Math.round((parseFloat(product.price) * multipl * byn + Number.EPSILON) * 100) / 100
                     } BYN)
                   </Typography>
                   <Typography fontSize={14}>

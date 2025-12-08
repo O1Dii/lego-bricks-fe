@@ -6,12 +6,14 @@ export const SettingsContext = React.createContext({
   reloadSettings: () => {},
   byn: 0,
   rub: 0,
-  minCartPrice: 0
+  minCartPrice: 0,
+  multipl: 1
 });
 
 export default function SettingsContextProvider(props) {
   const [byn, setByn] = useState(0);
   const [rub, setRub] = useState(0);
+  const [multipl, setMultipl] = useState(1);
   const [minCartPrice, setMinCartPrice] = useState(0);
 
   const reloadSettings = () => {
@@ -21,6 +23,7 @@ export default function SettingsContextProvider(props) {
         setByn(response.data.byn)
         setRub(response.data.rub)
         setMinCartPrice(response.data.min)
+        setMultipl(response.data.multipl)
       })
   }
 
@@ -32,6 +35,7 @@ export default function SettingsContextProvider(props) {
     byn,
     rub,
     minCartPrice,
+    multipl,
     reloadSettings
   }
 

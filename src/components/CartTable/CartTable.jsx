@@ -23,7 +23,7 @@ export default function CartTable({items, loading}) {
   // end pagination
 
   const {getCartSum, removeItem, getQuantityOfItemInCart, reloader, changeQuantityOfItemInCart} = useContext(CartContext);
-  const {rub, byn, minCartPrice} = useContext(SettingsContext);
+  const {rub, byn, minCartPrice, multipl} = useContext(SettingsContext);
 
   const [data, setData] = useState([]);
   const isMobile = useMediaQuery('(max-width:700px)');
@@ -112,13 +112,13 @@ export default function CartTable({items, loading}) {
                 <Grid xs={12}>
                   <Stack>
                     <Typography fontSize={16}>
-                      <strong>{product.price}$</strong>
+                      <strong>{Math.round((product.price * multipl + Number.EPSILON) * 100) / 100}$</strong>
                     </Typography>
                     <Typography fontSize={12} color={"#00000080"}>
                       (~{
-                      Math.round((parseFloat(product.price) * rub + Number.EPSILON) * 100) / 100
+                      Math.round((parseFloat(product.price) * multipl * rub + Number.EPSILON) * 100) / 100
                     } RUB, {
-                      Math.round((parseFloat(product.price) * byn + Number.EPSILON) * 100) / 100
+                      Math.round((parseFloat(product.price) * multipl * byn + Number.EPSILON) * 100) / 100
                     } BYN)
                     </Typography>
                   </Stack>
@@ -208,13 +208,13 @@ export default function CartTable({items, loading}) {
                 <Stack direction={"row"} sx={{justifyContent: "space-between"}}>
                   <Stack>
                     <Typography fontSize={20}>
-                      <strong>{product.price}$</strong>
+                      <strong>{Math.round((product.price * multipl + Number.EPSILON) * 100) / 100}$</strong>
                     </Typography>
                     <Typography fontSize={14} color={"#00000080"}>
                       (~{
-                      Math.round((parseFloat(product.price) * rub + Number.EPSILON) * 100) / 100
+                      Math.round((parseFloat(product.price) * multipl * rub + Number.EPSILON) * 100) / 100
                     } RUB, {
-                      Math.round((parseFloat(product.price) * byn + Number.EPSILON) * 100) / 100
+                      Math.round((parseFloat(product.price) * multipl * byn + Number.EPSILON) * 100) / 100
                     } BYN)
                     </Typography>
                     <Typography fontSize={14}>
@@ -319,15 +319,15 @@ export default function CartTable({items, loading}) {
         <Stack sx={{alignItems: "flex-end"}}>
           <Typography fontSize={isMobile ? 20 : 24}>
             <strong>
-              {getCartSum()}$
+              {getCartSum(multipl)}$
             </strong>
             (~{
-              Math.round((getCartSum() * rub + Number.EPSILON) * 100) / 100
+              Math.round((getCartSum(multipl) * rub + Number.EPSILON) * 100) / 100
             } RUB, {
-              Math.round((getCartSum() * byn + Number.EPSILON) * 100) / 100
+              Math.round((getCartSum(multipl) * byn + Number.EPSILON) * 100) / 100
             } BYN)
           </Typography>
-          <span style={{visibility: getCartSum() < minCartPrice ? '' : 'hidden', color: "#FF1B15"}}>Минимальная стоимость корзины - <strong>{minCartPrice}</strong> $ </span>
+          <span style={{visibility: getCartSum(multipl) < minCartPrice ? '' : 'hidden', color: "#FF1B15"}}>Минимальная стоимость корзины - <strong>{minCartPrice}</strong> $ </span>
         </Stack>
       </Stack>
 

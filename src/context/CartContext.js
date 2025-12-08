@@ -92,9 +92,9 @@ export default function CartContextProvider(props) {
     setReloader(reloader + 1);
   }
 
-  const getCartSum = () => {
+  const getCartSum = (multipl) => {
     const totalPrice = items.reduce((acc, item) => {
-      return acc + item.price * item.quantityInCart
+      return acc + (Math.round((item.price * multipl + Number.EPSILON) * 100) / 100) * item.quantityInCart
     }, 0)
     return Math.round((totalPrice + Number.EPSILON) * 100) / 100
   }
