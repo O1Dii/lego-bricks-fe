@@ -185,6 +185,7 @@ export default function Cart() {
                   <button
                     className="filled-normal-button"
                     style={{width: "260px"}}
+                    disabled={!items.length}
                     onClick={() => clearCart()}
                   >Очистить</button>
                 </Stack>
@@ -303,6 +304,7 @@ export default function Cart() {
                     <button
                       className="filled-normal-button"
                       onClick={() => clearCart()}
+                      disabled={!items.length}
                     >Очистить</button>
                   </Stack>
                 </Stack>
