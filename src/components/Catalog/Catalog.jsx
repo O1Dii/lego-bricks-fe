@@ -50,7 +50,8 @@ export default function Catalog() {
   const sortMap = {
     'Номер детали': 'item_no',
     'Цена': 'price',
-    'Количество': 'quantity'
+    'Количество': 'quantity',
+    'Цвет': 'color'
   }
   const navigate = useNavigate();
 
@@ -275,7 +276,7 @@ export default function Catalog() {
 
                 {!items["not_found_items"] &&
                   <Stack direction={"row"} sx={{justifyContent: "space-between", margin: "15px 0"}}>
-                    <Dropdown options={['Номер детали', 'Цена', 'Количество']} selected={selectedSort} setSelected={setSelectedSort}/>
+                    <Dropdown options={['Номер детали', 'Цена', 'Количество', 'Цвет']} selected={selectedSort} setSelected={setSelectedSort}/>
                     <Dropdown options={[15, 25, 35]} selected={perPage} setSelected={setPerPage} defaultSelected={'25'}/>
                   </Stack>
                 }
@@ -373,7 +374,7 @@ export default function Catalog() {
                   {!items["not_found_items"] &&
                     <Grid container spacing={2} direction={"row"} sx={{justifyContent: "space-between", width: "100%", margin: "0 0 15px 0", paddingBottom: "15px", borderBottom: "1px solid #D7D7D7"}}>
                       <Grid xs={6} sx={{paddingLeft: 0, paddingBottom: 0}}>
-                        <Dropdown options={['Номер детали', 'Цена', 'Количество']} selected={selectedSort} setSelected={setSelectedSort}/>
+                        <Dropdown options={['Номер детали', 'Цена', 'Количество', 'Цвет']} selected={selectedSort} setSelected={setSelectedSort}/>
                       </Grid>
                       <Grid xs={6} sx={{paddingRight: 0, paddingBottom: 0}}>
                         <Dropdown options={[15, 25, 35]} selected={perPage} setSelected={setPerPage} defaultSelected={'25'}/>

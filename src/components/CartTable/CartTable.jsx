@@ -46,8 +46,33 @@ export default function CartTable({items, loading}) {
 
   useEffect(() => {
     let currentData = null;
+
+    // presort data
+    const sortedItems = items.sort((a, b) => {
+      const colorA = (a.color ?? '').toString().toLowerCase();
+      const colorB = (b.color ?? '').toString().toLowerCase();
+
+      const colorCompare = colorA.localeCompare(colorB, undefined, {
+        sensitivity: 'base',
+        numeric: false
+      });
+
+      if (colorCompare !== 0) {
+        return colorCompare;
+      }
+
+      const itemNoA = a.item_no ?? '';
+      const itemNoB = b.item_no ?? '';
+
+      return itemNoA.toString().localeCompare(
+        itemNoB.toString(),
+        undefined,
+        { numeric: true }
+      );
+    });
+
     if (isMobile) {
-      currentData = items.map((product, index) => (
+      currentData = sortedItems.map((product, index) => (
         <Grid item xs={6} key={product.id} sx={{display: "flex"}}>
           <Paper sx={{
             width: "auto",
@@ -153,7 +178,7 @@ export default function CartTable({items, loading}) {
         </Grid>
       ))
     } else {
-      currentData = items.map((product, index) => {
+      currentData = sortedItems.map((product, index) => {
         return (
           <Paper sx={{
             width: {xs: "auto"},
@@ -309,9 +334,6 @@ export default function CartTable({items, loading}) {
           </>
         }
       </Box>
-      {items &&
-      <Pagination urlBase="cart" itemsLen={items.length} productsOnPage={perPage} setProductsOnPage={setPerPage}/>
-      }
       <Stack direction={"row"} sx={{justifyContent: "space-between", width: "100%", marginTop: "20px"}}>
         <Typography fontSize={20}>
           Товаров на сумму
