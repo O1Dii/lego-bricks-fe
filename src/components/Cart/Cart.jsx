@@ -15,6 +15,43 @@ import {SettingsContext} from "../../context/SettingsContext";
 import getSvg from "../../constants/svg";
 
 
+// Helper function to convert image URL to base64
+const imageToBase64 = async (url) => {
+  try {
+    const response = await fetch(url, { mode: 'cors' });
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.warn(`Failed to convert image to base64: ${url}`, error);
+    return null; // Return null if image can't be loaded, backend will use URL fallback
+  }
+};
+
+// Helper to prepare items with base64 images for PDF
+const prepareItemsWithImages = async (items) => {
+  const itemsWithImages = await Promise.all(
+    items.map(async (item) => {
+      const base64Image = await imageToBase64(item.url);
+      return {
+        id: item.id,
+        quantity: item.quantityInCart,
+        description: item.description,
+        lot_id: item.lot_id,
+        item_no: item.item_no,
+        price: item.price,
+        url: item.url,
+        image_base64: base64Image // Include base64 image data
+      };
+    })
+  );
+  return itemsWithImages;
+};
+
 export default function Cart() {
   const isMobile = useMediaQuery('(max-width:700px)');
 
@@ -48,33 +85,29 @@ export default function Cart() {
     return telMatch && nameMatch
   }
 
-  const onDialogConfirm = () => {
+  const onDialogConfirm = async () => {
     setLoading(true);
-    axios
-      .post(ORDERS_POST_ORDER(), {
-        items: items.map(item => ({
-          id: item.id,
-          quantity: item.quantityInCart,
-          description: item.description,
-          lot_id: item.lot_id,
-          item_no: item.item_no
-        })),
+    try {
+      // Prepare items with base64 images for faster PDF generation on backend
+      const itemsWithImages = await prepareItemsWithImages(items);
+      
+      const response = await axios.post(ORDERS_POST_ORDER(), {
+        items: itemsWithImages,
         customer_telephone: tel,
         customer_name: name,
         dostavka: shippingRequired
-      })
-      .then(response => {
-        setLoading(false);
-        setDialogStatus(1);
-      })
-      .catch(error => {
-        setDialogMessage('');
-        setLoading(false);
-        setDialogStatus(2);
-        if (error.response && error.response.status === 409) {
-          setDialogMessage(error.response.data?.error);
-        }
-      })
+      });
+      
+      setLoading(false);
+      setDialogStatus(1);
+    } catch (error) {
+      setDialogMessage('');
+      setLoading(false);
+      setDialogStatus(2);
+      if (error.response && error.response.status === 409) {
+        setDialogMessage(error.response.data?.error);
+      }
+    }
   }
 
   const onFormSubmit = (e) => {
@@ -113,33 +146,32 @@ export default function Cart() {
       })
   }
 
-  const saveAsPdf = () => {
+  const saveAsPdf = async () => {
     setLoading(true);
-    axios
-      .post(CART_PDF_SAVE(), {items: items.map(item => ({
-          id: item.id,
-          quantity: item.quantityInCart,
-          description: item.description,
-          lot_id: item.lot_id,
-          item_no: item.item_no
-        }))}, {
-        responseType: 'blob'
-      })
-      .then(response => {
-        const blob = new Blob([response.data], { type: 'application/pdf' });
-
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'order_details.pdf';
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        setLoading(false);
-      })
-      .catch(() => {
-        setFailureSnackbarOpen(true);
-        setLoading(false);
-      })
+    try {
+      // Prepare items with base64 images to avoid backend image fetching
+      const itemsWithImages = await prepareItemsWithImages(items);
+      
+      const response = await axios.post(CART_PDF_SAVE(), {
+        items: itemsWithImages
+      }, {
+        responseType: 'blob',
+        timeout: 60000 // 60 second timeout as fallback
+      });
+      
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'order_details.pdf';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setLoading(false);
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      setFailureSnackbarOpen(true);
+      setLoading(false);
+    }
   }
 
   const resetDialogStatus = () => {
